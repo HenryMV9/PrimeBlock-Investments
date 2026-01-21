@@ -198,8 +198,7 @@ export default function Landing() {
           <div className="p-8 bg-gradient-to-r from-primary-900/50 to-accent-900/50 border border-primary-500/30 rounded-2xl">
             <div className="flex items-start gap-4">
               <div className="p-3 bg-yellow-500/20 rounded-xl">
-                <AlertTriangle className="text-yellow-400" size={24} />
-              </div>
+
             </div>
           </div>
         </div>
