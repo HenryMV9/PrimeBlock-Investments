@@ -202,16 +202,6 @@ export default function Landing() {
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-white mb-2">
-                  Important Disclaimer
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Prime Blocks Investments operates as an investment performance dashboard platform.
-                  All financial figures displayed are simulated or internally managed for informational purposes.
-                  This platform does not execute real trades or provide financial advice.
-                  Market data shown is for informational purposes only and should not be used for trading decisions.
-                  Past performance does not guarantee future results. Please consult with a qualified financial
-                  advisor before making any investment decisions.
-                </p>
               </div>
             </div>
           </div>
