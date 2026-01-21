@@ -53,9 +53,10 @@ export default function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-800 rounded-lg text-white"
+        className="lg:hidden fixed top-3 left-3 z-50 p-2 bg-slate-800 rounded-lg text-white shadow-lg"
+        aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
       >
-        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
       <aside
@@ -130,7 +131,7 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       <main className="lg:ml-64 min-h-screen">
-        <div className="p-4 lg:p-8">{children}</div>
+        <div className="pt-16 px-3 pb-4 md:pt-6 md:px-6 md:pb-6 lg:p-8">{children}</div>
       </main>
     </div>
   )

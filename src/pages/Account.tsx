@@ -119,22 +119,22 @@ export default function Account() {
 
   return (
     <Layout>
-      <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2">
           Account Summary
         </h1>
-        <p className="text-slate-400">
+        <p className="text-sm md:text-base text-slate-400">
           View your account details and investment summary.
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-white">Profile Information</h2>
-                <p className="text-sm text-slate-400">Your account details</p>
+                <h2 className="text-base md:text-lg font-semibold text-white">Profile Information</h2>
+                <p className="text-xs md:text-sm text-slate-400">Your account details</p>
               </div>
               {!editing && (
                 <Button variant="outline" size="sm" onClick={handleStartEdit}>
@@ -229,46 +229,46 @@ export default function Account() {
 
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-white">Investment Summary</h2>
-              <p className="text-sm text-slate-400">Your portfolio at a glance</p>
+              <h2 className="text-base md:text-lg font-semibold text-white">Investment Summary</h2>
+              <p className="text-xs md:text-sm text-slate-400">Your portfolio at a glance</p>
             </CardHeader>
             <CardContent>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-700/30 rounded-xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-primary-500/20 rounded-lg">
-                      <Wallet className="text-primary-400" size={20} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                <div className="p-3 md:p-4 bg-slate-700/30 rounded-xl">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <div className="p-1.5 md:p-2 bg-primary-500/20 rounded-lg">
+                      <Wallet className="text-primary-400 w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <span className="text-slate-400">Portfolio Value</span>
+                    <span className="text-slate-400 text-sm md:text-base">Portfolio Value</span>
                   </div>
-                  <p className="text-2xl font-bold text-white">{formatCurrency(portfolioValue)}</p>
+                  <p className="text-xl md:text-2xl font-bold text-white">{formatCurrency(portfolioValue)}</p>
                 </div>
-                <div className="p-4 bg-slate-700/30 rounded-xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-emerald-500/20 rounded-lg">
-                      <TrendingUp className="text-emerald-400" size={20} />
+                <div className="p-3 md:p-4 bg-slate-700/30 rounded-xl">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <div className="p-1.5 md:p-2 bg-emerald-500/20 rounded-lg">
+                      <TrendingUp className="text-emerald-400 w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <span className="text-slate-400">Total Deposits</span>
+                    <span className="text-slate-400 text-sm md:text-base">Total Deposits</span>
                   </div>
-                  <p className="text-2xl font-bold text-white">{formatCurrency(totalDeposits)}</p>
+                  <p className="text-xl md:text-2xl font-bold text-white">{formatCurrency(totalDeposits)}</p>
                 </div>
-                <div className="p-4 bg-slate-700/30 rounded-xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-red-500/20 rounded-lg">
-                      <TrendingDown className="text-red-400" size={20} />
+                <div className="p-3 md:p-4 bg-slate-700/30 rounded-xl">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <div className="p-1.5 md:p-2 bg-red-500/20 rounded-lg">
+                      <TrendingDown className="text-red-400 w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <span className="text-slate-400">Total Withdrawals</span>
+                    <span className="text-slate-400 text-sm md:text-base">Total Withdrawals</span>
                   </div>
-                  <p className="text-2xl font-bold text-white">{formatCurrency(totalWithdrawals)}</p>
+                  <p className="text-xl md:text-2xl font-bold text-white">{formatCurrency(totalWithdrawals)}</p>
                 </div>
-                <div className="p-4 bg-slate-700/30 rounded-xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-accent-500/20 rounded-lg">
-                      <DollarSign className="text-accent-400" size={20} />
+                <div className="p-3 md:p-4 bg-slate-700/30 rounded-xl">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <div className="p-1.5 md:p-2 bg-accent-500/20 rounded-lg">
+                      <DollarSign className="text-accent-400 w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <span className="text-slate-400">Total Profits</span>
+                    <span className="text-slate-400 text-sm md:text-base">Total Profits</span>
                   </div>
-                  <p className={`text-2xl font-bold ${totalProfits >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <p className={`text-xl md:text-2xl font-bold ${totalProfits >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                     {formatCurrency(totalProfits)}
                   </p>
                 </div>
@@ -320,18 +320,18 @@ export default function Account() {
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <Card>
-            <CardContent className="text-center p-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-accent-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl font-bold text-white">
+            <CardContent className="text-center p-6 md:p-8">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-primary-500 to-accent-600 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <span className="text-2xl md:text-3xl font-bold text-white">
                   {profile?.full_name?.charAt(0)?.toUpperCase() || profile?.email?.charAt(0)?.toUpperCase() || 'U'}
                 </span>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-1">
+              <h3 className="text-lg md:text-xl font-semibold text-white mb-1">
                 {profile?.full_name || 'Investor'}
               </h3>
-              <p className="text-slate-400 text-sm">{profile?.email}</p>
+              <p className="text-slate-400 text-xs md:text-sm break-words">{profile?.email}</p>
               {profile?.is_admin && (
                 <span className="inline-block mt-3 px-3 py-1 bg-accent-500/20 text-accent-400 text-sm rounded-full">
                   Administrator
@@ -342,25 +342,25 @@ export default function Account() {
 
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-white">ROI Summary</h2>
+              <h2 className="text-base md:text-lg font-semibold text-white">ROI Summary</h2>
             </CardHeader>
             <CardContent>
-              <div className="text-center mb-6">
-                <p className={`text-4xl font-bold ${roiPercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              <div className="text-center mb-4 md:mb-6">
+                <p className={`text-3xl md:text-4xl font-bold ${roiPercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                   {formatPercent(roiPercent)}
                 </p>
-                <p className="text-slate-400 text-sm mt-1">Total Return on Investment</p>
+                <p className="text-slate-400 text-xs md:text-sm mt-1">Total Return on Investment</p>
               </div>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex justify-between text-xs md:text-sm">
                   <span className="text-slate-400">Initial Investment</span>
                   <span className="text-white">{formatCurrency(totalDeposits)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs md:text-sm">
                   <span className="text-slate-400">Current Value</span>
                   <span className="text-white">{formatCurrency(portfolioValue)}</span>
                 </div>
-                <div className="flex justify-between text-sm pt-3 border-t border-slate-700/50">
+                <div className="flex justify-between text-xs md:text-sm pt-2 md:pt-3 border-t border-slate-700/50">
                   <span className="text-slate-400">Net Gain/Loss</span>
                   <span className={`font-medium ${
                     portfolioValue - totalDeposits >= 0 ? 'text-emerald-400' : 'text-red-400'
@@ -373,24 +373,24 @@ export default function Account() {
           </Card>
 
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-emerald-500/20 rounded-lg">
-                  <Shield className="text-emerald-400" size={20} />
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                <div className="p-1.5 md:p-2 bg-emerald-500/20 rounded-lg">
+                  <Shield className="text-emerald-400 w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <span className="font-medium text-white">Account Security</span>
+                <span className="font-medium text-white text-sm md:text-base">Account Security</span>
               </div>
-              <div className="space-y-2 text-sm text-slate-400">
+              <div className="space-y-2 text-xs md:text-sm text-slate-400">
                 <div className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-emerald-400" />
+                  <CheckCircle size={12} className="md:w-3.5 md:h-3.5 text-emerald-400 flex-shrink-0" />
                   <span>Email verified</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-emerald-400" />
+                  <CheckCircle size={12} className="md:w-3.5 md:h-3.5 text-emerald-400 flex-shrink-0" />
                   <span>Secure connection (HTTPS)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle size={14} className="text-emerald-400" />
+                  <CheckCircle size={12} className="md:w-3.5 md:h-3.5 text-emerald-400 flex-shrink-0" />
                   <span>Data encryption enabled</span>
                 </div>
               </div>
