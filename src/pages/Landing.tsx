@@ -193,16 +193,6 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="p-8 bg-gradient-to-r from-primary-900/50 to-accent-900/50 border border-primary-500/30 rounded-2xl">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-yellow-500/20 rounded-xl">
-
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section className="py-20 lg:py-32 px-4">
         <div className="max-w-4xl mx-auto text-center">
