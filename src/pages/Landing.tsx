@@ -200,9 +200,6 @@ export default function Landing() {
               <div className="p-3 bg-yellow-500/20 rounded-xl">
                 <AlertTriangle className="text-yellow-400" size={24} />
               </div>
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-2">
-              </div>
             </div>
           </div>
         </div>
