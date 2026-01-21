@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { usePortfolioPerformance } from '../hooks/usePortfolioPerformance'
 import Layout from '../components/Layout'
@@ -15,6 +15,7 @@ import {
   DollarSign,
   Shield,
   CheckCircle,
+  AlertCircle,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
@@ -42,9 +43,18 @@ export default function Account() {
   const { profile, user, refreshProfile } = useAuth()
   const { performance } = usePortfolioPerformance()
   const [editing, setEditing] = useState(false)
-  const [fullName, setFullName] = useState(profile?.full_name || '')
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.full_name || '')
+      setEmail(profile.email || '')
+    }
+  }, [profile])
 
   const portfolioValue = profile?.balance || 0
   const totalDeposits = profile?.total_deposits || 0
@@ -52,22 +62,57 @@ export default function Account() {
   const totalProfits = profile?.total_profits || 0
   const roiPercent = totalDeposits > 0 ? ((portfolioValue - totalDeposits) / totalDeposits) * 100 : 0
 
+  const handleStartEdit = () => {
+    setFullName(profile?.full_name || '')
+    setEmail(profile?.email || '')
+    setError('')
+    setEditing(true)
+  }
+
+  const handleCancel = () => {
+    setFullName(profile?.full_name || '')
+    setEmail(profile?.email || '')
+    setError('')
+    setEditing(false)
+  }
+
   const handleSave = async () => {
     if (!user) return
+    setError('')
     setSaving(true)
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ full_name: fullName })
-      .eq('id', user.id)
+    try {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ full_name: fullName, email: email })
+        .eq('id', user.id)
 
-    if (!error) {
+      if (profileError) {
+        setError(profileError.message)
+        setSaving(false)
+        return
+      }
+
+      if (email !== profile?.email) {
+        const { error: authError } = await supabase.auth.updateUser({
+          email: email,
+        })
+
+        if (authError) {
+          setError(authError.message)
+          setSaving(false)
+          return
+        }
+      }
+
       await refreshProfile()
       setSaved(true)
       setTimeout(() => {
         setSaved(false)
         setEditing(false)
       }, 1500)
+    } catch (err) {
+      setError('Failed to save changes. Please try again.')
     }
     setSaving(false)
   }
@@ -92,7 +137,7 @@ export default function Account() {
                 <p className="text-sm text-slate-400">Your account details</p>
               </div>
               {!editing && (
-                <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+                <Button variant="outline" size="sm" onClick={handleStartEdit}>
                   Edit Profile
                 </Button>
               )}
@@ -100,14 +145,38 @@ export default function Account() {
             <CardContent className="space-y-6">
               {editing ? (
                 <div className="space-y-4">
+                  {error && (
+                    <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400">
+                      <AlertCircle size={20} />
+                      <span>{error}</span>
+                    </div>
+                  )}
+
+                  {saved && (
+                    <div className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400">
+                      <CheckCircle size={20} />
+                      <span>Profile updated successfully!</span>
+                    </div>
+                  )}
+
                   <Input
                     label="Full Name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Enter your full name"
                   />
+
+                  <Input
+                    label="Email Address"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    helpText="Changing your email will require verification"
+                  />
+
                   <div className="flex gap-3">
-                    <Button onClick={handleSave} loading={saving}>
+                    <Button onClick={handleSave} loading={saving} disabled={saved}>
                       {saved ? (
                         <>
                           <CheckCircle size={16} />
@@ -117,7 +186,7 @@ export default function Account() {
                         'Save Changes'
                       )}
                     </Button>
-                    <Button variant="ghost" onClick={() => setEditing(false)}>
+                    <Button variant="ghost" onClick={handleCancel} disabled={saving}>
                       Cancel
                     </Button>
                   </div>
@@ -256,7 +325,7 @@ export default function Account() {
             <CardContent className="text-center p-8">
               <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-accent-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl font-bold text-white">
-                  {profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                  {profile?.full_name?.charAt(0)?.toUpperCase() || profile?.email?.charAt(0)?.toUpperCase() || 'U'}
                 </span>
               </div>
               <h3 className="text-xl font-semibold text-white mb-1">
