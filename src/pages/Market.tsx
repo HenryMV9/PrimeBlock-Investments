@@ -187,26 +187,7 @@ export default function Market() {
           <TickerTapeWidget />
         </CardContent>
       </Card>
-
-      <Card className="mb-6 p-4 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border-yellow-500/30">
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-yellow-500/20 rounded-xl">
-            <AlertTriangle className="text-yellow-400" size={24} />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-1">
-              Informational Purposes Only
-            </h3>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Market data displayed on this page is provided by TradingView for informational purposes only.
-              This data should not be used for trading decisions. Prime Blocks Investments does not execute
-              trades or provide financial advice. All investment performance shown in your account is
-              simulated or managed internally.
-            </p>
-          </div>
-        </div>
-      </Card>
-
+      
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {popularSymbols.map((item) => (
           <Card key={item.id}>
