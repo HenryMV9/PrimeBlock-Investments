@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,34 +10,36 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-@layer utilities {
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-accent-500;
-  }
+* {
+  scroll-behavior: smooth;
+}
 
+@layer utilities {
   .glass-effect {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-xl hover:shadow-primary-900/10 hover:-translate-y-1;
+    @apply transition-all duration-300 hover:shadow-2xl hover:shadow-blue-900/20 hover:-translate-y-1;
   }
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #0f172a;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #475569;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 5px;
+  border: 2px solid #0f172a;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
 }

@@ -62,54 +62,66 @@ const steps = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
+    <div className="min-h-screen bg-slate-950">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <TrendingUp className="text-white" size={20} />
               </div>
-              <span className="text-xl font-bold text-white">Prime Blocks</span>
+              <div>
+                <span className="text-xl font-bold text-white block">Prime Blocks</span>
+                <span className="text-xs text-slate-400 hidden sm:block">Investments</span>
+              </div>
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
               <Link to="/login">
                 <Button variant="ghost" size="sm">
                   Sign In
                 </Button>
               </Link>
               <Link to="/register">
-                <Button size="sm">Get Started</Button>
+                <Button size="sm" className="shadow-lg shadow-blue-500/20">Get Started</Button>
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      <section className="pt-32 lg:pt-40 pb-20 px-4">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative pt-32 lg:pt-40 pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900/95 to-slate-950 z-10" />
+          <img
+            src="https://images.pexels.com/photos/534216/pexels-photo-534216.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            alt="Background"
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent z-10" />
+        </div>
+        <div className="max-w-7xl mx-auto relative z-20">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500/10 border border-primary-500/30 rounded-full text-primary-400 text-sm mb-8">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm mb-8 backdrop-blur-sm shadow-lg">
               <Award size={16} />
-              <span>Trusted Investment Platform</span>
+              <span className="font-medium">Trusted Investment Platform</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
               Professional Investment
-              <span className="block text-gradient">Management Dashboard</span>
+              <span className="block bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent">Management Dashboard</span>
             </h1>
-            <p className="text-lg sm:text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
               Track your portfolio performance, manage transactions, and monitor your investments
               all in one secure, professional platform.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/register">
-                <Button size="lg">
+                <Button size="lg" className="shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40">
                   Start Investing
                   <ArrowRight size={20} />
                 </Button>
               </Link>
               <Link to="/login">
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="backdrop-blur-sm">
                   Access Dashboard
                 </Button>
               </Link>
@@ -118,28 +130,44 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-16 px-4 border-y border-slate-700/50 bg-slate-800/30">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative py-16 px-4 border-y border-slate-800/50 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-slate-950/90 z-10" />
+          <img
+            src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            alt="Background"
+            className="w-full h-full object-cover opacity-10"
+          />
+        </div>
+        <div className="max-w-7xl mx-auto relative z-20">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-white mb-2">
+              <div key={stat.label} className="text-center group">
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent mb-2 group-hover:scale-105 transition-transform">
                   {stat.value}
                 </div>
-                <div className="text-slate-400">{stat.label}</div>
+                <div className="text-slate-300 text-sm sm:text-base font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20 lg:py-32 px-4">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative py-20 lg:py-32 px-4 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900/95 to-slate-950 z-10" />
+          <img
+            src="https://images.pexels.com/photos/187041/pexels-photo-187041.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            alt="Background"
+            className="w-full h-full object-cover opacity-10"
+          />
+        </div>
+        <div className="max-w-7xl mx-auto relative z-20">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
               Why Choose Prime Blocks
             </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">
+            <p className="text-slate-300 text-lg max-w-2xl mx-auto">
               Our platform provides everything you need to track and manage your investments effectively.
             </p>
           </div>
@@ -147,28 +175,36 @@ export default function Landing() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="p-6 bg-slate-800/50 border border-slate-700/50 rounded-2xl hover:border-primary-500/30 transition-all duration-300 group"
+                className="p-6 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl hover:border-blue-500/50 hover:bg-slate-800/80 transition-all duration-300 group shadow-xl hover:shadow-2xl hover:shadow-blue-500/10"
               >
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-500/20 to-accent-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <feature.icon className="text-primary-400" size={24} />
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
+                  <feature.icon className="text-blue-400" size={24} />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-slate-400 text-sm">{feature.description}</p>
+                <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20 lg:py-32 px-4 bg-slate-800/30">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative py-20 lg:py-32 px-4 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-slate-950/95 z-10" />
+          <img
+            src="https://images.pexels.com/photos/6801647/pexels-photo-6801647.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            alt="Background"
+            className="w-full h-full object-cover opacity-5"
+          />
+        </div>
+        <div className="max-w-7xl mx-auto relative z-20">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
               How It Works
             </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">
+            <p className="text-slate-300 text-lg max-w-2xl mx-auto">
               Get started with Prime Blocks in three simple steps.
             </p>
           </div>
@@ -176,16 +212,16 @@ export default function Landing() {
             {steps.map((item, index) => (
               <div key={item.step} className="relative">
                 {index < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-primary-500/50 to-transparent" />
+                  <div className="hidden lg:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-blue-500/50 to-transparent z-0" />
                 )}
-                <div className="p-8 bg-slate-800/50 border border-slate-700/50 rounded-2xl text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <div className="relative z-10 p-8 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl text-center hover:border-blue-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 group">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
                     <span className="text-2xl font-bold text-white">{item.step}</span>
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-3">
                     {item.title}
                   </h3>
-                  <p className="text-slate-400">{item.description}</p>
+                  <p className="text-slate-400 leading-relaxed">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -193,24 +229,31 @@ export default function Landing() {
         </div>
       </section>
 
-
-      <section className="py-20 lg:py-32 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+      <section className="relative py-20 lg:py-32 px-4 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950/20 to-slate-950 z-10" />
+          <img
+            src="https://images.pexels.com/photos/7413915/pexels-photo-7413915.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            alt="Background"
+            className="w-full h-full object-cover opacity-10"
+          />
+        </div>
+        <div className="max-w-4xl mx-auto text-center relative z-20">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
             Ready to Get Started?
           </h2>
-          <p className="text-slate-400 mb-10 max-w-2xl mx-auto">
+          <p className="text-slate-300 text-lg mb-10 max-w-2xl mx-auto">
             Join thousands of investors tracking their portfolio performance with Prime Blocks.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/register">
-              <Button size="lg">
+              <Button size="lg" className="shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40">
                 Create Your Account
                 <ArrowRight size={20} />
               </Button>
             </Link>
           </div>
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-slate-400">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:gap-6 text-sm text-slate-300">
             <span className="flex items-center gap-2">
               <CheckCircle size={16} className="text-emerald-400" />
               Free to register
@@ -227,23 +270,26 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="py-12 px-4 border-t border-slate-700/50">
+      <footer className="py-12 px-4 border-t border-slate-800/50 bg-slate-950/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <TrendingUp className="text-white" size={20} />
               </div>
-              <span className="text-xl font-bold text-white">Prime Blocks Investments</span>
+              <div>
+                <span className="text-lg font-bold text-white block">Prime Blocks</span>
+                <span className="text-xs text-slate-400">Investments</span>
+              </div>
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-400">
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Contact</a>
+              <a href="#" className="hover:text-blue-400 transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-blue-400 transition-colors">Contact</a>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-slate-700/50 text-center text-sm text-slate-500">
-            <p>2024 Prime Blocks Investments. All rights reserved.</p>
+          <div className="mt-8 pt-8 border-t border-slate-800/50 text-center text-sm text-slate-500">
+            <p className="text-slate-400">2024 Prime Blocks Investments. All rights reserved.</p>
             <p className="mt-2">
               This platform is for informational purposes only and does not constitute financial advice.
             </p>
