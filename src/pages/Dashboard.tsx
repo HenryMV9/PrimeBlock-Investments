@@ -270,26 +270,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardContent className="p-4 md:p-6">
-          <div className="flex items-start gap-3 md:gap-4">
-            <div className="p-2 md:p-3 bg-yellow-500/20 rounded-xl flex-shrink-0">
-              <Activity className="text-yellow-400 w-5 h-5 md:w-6 md:h-6" />
-            </div>
-            <div>
-              <h3 className="text-base md:text-lg font-semibold text-white mb-1">
-                Simulated Performance Data
-              </h3>
-              <p className="text-xs md:text-sm text-slate-400 leading-relaxed">
-                All financial figures displayed on this dashboard are simulated or internally managed.
-                This platform operates as an investment performance dashboard and does not execute real trades.
-                Values shown are for informational and tracking purposes only.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </Layout>
   )
 }
