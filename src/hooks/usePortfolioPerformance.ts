@@ -32,7 +32,7 @@ export function usePortfolioPerformance() {
 
   useEffect(() => {
     fetchPerformance()
-  }, [user])
+  }, [user?.id])
 
   return { performance, latestPerformance, loading, error, refetch: fetchPerformance }
 }

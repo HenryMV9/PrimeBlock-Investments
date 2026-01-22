@@ -29,7 +29,7 @@ export function useTransactions() {
 
   useEffect(() => {
     fetchTransactions()
-  }, [user])
+  }, [user?.id])
 
   return { transactions, loading, error, refetch: fetchTransactions }
 }

@@ -49,7 +49,7 @@ export function useWithdrawalRequests() {
 
   useEffect(() => {
     fetchRequests()
-  }, [user])
+  }, [user?.id])
 
   return { requests, loading, error, createRequest, refetch: fetchRequests }
 }

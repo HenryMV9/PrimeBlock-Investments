@@ -60,7 +60,7 @@ export default function AdminUsers() {
     if (profile?.is_admin) {
       fetchUsers()
     }
-  }, [profile])
+  }, [profile?.is_admin])
 
   const filteredUsers = users.filter((user) => {
     if (!searchQuery) return true

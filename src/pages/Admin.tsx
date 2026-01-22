@@ -85,7 +85,7 @@ export default function Admin() {
     if (profile?.is_admin) {
       fetchData()
     }
-  }, [profile])
+  }, [profile?.is_admin])
 
   const handleDepositAction = async (deposit: DepositRequest, action: 'approved' | 'rejected') => {
     if (!profile) return

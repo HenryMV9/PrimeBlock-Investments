@@ -49,7 +49,7 @@ export function useDepositRequests() {
 
   useEffect(() => {
     fetchRequests()
-  }, [user])
+  }, [user?.id])
 
   return { requests, loading, error, createRequest, refetch: fetchRequests }
 }
