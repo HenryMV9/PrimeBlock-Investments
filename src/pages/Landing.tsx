@@ -289,10 +289,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-slate-800/50 text-center text-sm text-slate-500">
-            <p className="text-slate-400">2024 Prime Blocks Investments. All rights reserved.</p>
-            <p className="mt-2">
-              This platform is for informational purposes only and does not constitute financial advice.
-            </p>
+            <p className="text-slate-400">2025 Prime Blocks Investments. All rights reserved.</p>
           </div>
         </div>
       </footer>
