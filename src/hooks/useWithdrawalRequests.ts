@@ -42,6 +42,26 @@ export function useWithdrawalRequests() {
 
     if (!error) {
       await fetchRequests()
+
+      try {
+        const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-withdrawal-request`
+        await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            amount,
+            withdrawalMethod,
+            accountDetails,
+            notes,
+          }),
+        })
+      } catch (notifError) {
+        console.error('Failed to send notification:', notifError)
+      }
     }
 
     return { error }

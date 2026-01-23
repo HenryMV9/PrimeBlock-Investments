@@ -10,6 +10,7 @@ import Transactions from './pages/Transactions'
 import Deposit from './pages/Deposit'
 import Withdraw from './pages/Withdraw'
 import Market from './pages/Market'
+import Support from './pages/Support'
 import Admin from './pages/Admin'
 import AdminUsers from './pages/AdminUsers'
 import { ReactNode } from 'react'
@@ -129,6 +130,14 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <Market />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/support"
+        element={
+          <PrivateRoute>
+            <Support />
           </PrivateRoute>
         }
       />

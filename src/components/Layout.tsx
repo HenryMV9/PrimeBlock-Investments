@@ -8,6 +8,7 @@ import {
   ArrowUpFromLine,
   FileText,
   BarChart3,
+  MessageSquare,
   Users,
   Settings,
   LogOut,
@@ -27,6 +28,7 @@ const userNavItems = [
   { path: '/deposit', label: 'Deposit', icon: ArrowDownToLine },
   { path: '/withdraw', label: 'Withdraw', icon: ArrowUpFromLine },
   { path: '/market', label: 'Market Overview', icon: BarChart3 },
+  { path: '/support', label: 'Support & Contact', icon: MessageSquare },
 ]
 
 const adminNavItems = [
