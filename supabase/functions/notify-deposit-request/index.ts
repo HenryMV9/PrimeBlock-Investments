@@ -16,7 +16,7 @@ interface DepositNotification {
 }
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const SUPPORT_EMAIL = "support@primeblockivestment.org";
+const SUPPORT_EMAIL = "support@primeblockinvestment.org";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -102,7 +102,7 @@ Deno.serve(async (req: Request) => {
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Prime Blocks Investments <noreply@primeblockivestment.org>",
+        from: "Prime Blocks Investments <noreply@primeblockinvestment.org>",
         to: [SUPPORT_EMAIL],
         reply_to: user.email,
         subject: emailSubject,

@@ -208,7 +208,7 @@ export default function Support() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-300">Email Support</p>
-                  <p className="text-sm text-slate-400 break-all">support@primeblockivestment.org</p>
+                  <p className="text-sm text-slate-400 break-all">support@primeblockinvestment.org</p>
                 </div>
               </div>
 

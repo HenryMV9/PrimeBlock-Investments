@@ -76,56 +76,73 @@ export default function AdminUsers() {
     if (!selectedUser || !actionType || !profile) return
 
     const numAmount = parseFloat(amount)
-    if (isNaN(numAmount)) return
-
-    setProcessing(true)
-
-    if (actionType === 'balance') {
-      await supabase
-        .from('profiles')
-        .update({ balance: selectedUser.balance + numAmount })
-        .eq('id', selectedUser.id)
-
-      await supabase.from('transactions').insert({
-        user_id: selectedUser.id,
-        type: 'balance_adjustment',
-        amount: Math.abs(numAmount),
-        status: 'approved',
-        description: description || `Balance adjustment by admin`,
-        processed_at: new Date().toISOString(),
-        processed_by: profile.id,
-      })
-    } else if (actionType === 'profit') {
-      await supabase
-        .from('profiles')
-        .update({
-          balance: selectedUser.balance + numAmount,
-          total_profits: selectedUser.total_profits + numAmount,
-        })
-        .eq('id', selectedUser.id)
-
-      await supabase.from('transactions').insert({
-        user_id: selectedUser.id,
-        type: 'profit_credit',
-        amount: numAmount,
-        status: 'approved',
-        description: description || `Profit credit`,
-        processed_at: new Date().toISOString(),
-        processed_by: profile.id,
-      })
+    if (isNaN(numAmount)) {
+      setError('Please enter a valid amount')
+      return
     }
 
-    setSuccess(true)
-    setTimeout(() => {
-      setSuccess(false)
-      setSelectedUser(null)
-      setActionType(null)
-      setAmount('')
-      setDescription('')
-    }, 1500)
+    setProcessing(true)
+    setError('')
 
-    setProcessing(false)
-    fetchUsers()
+    try {
+      if (actionType === 'balance') {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ balance: selectedUser.balance + numAmount })
+          .eq('id', selectedUser.id)
+
+        if (updateError) throw updateError
+
+        const { error: insertError } = await supabase.from('transactions').insert({
+          user_id: selectedUser.id,
+          type: 'balance_adjustment',
+          amount: Math.abs(numAmount),
+          status: 'approved',
+          description: description || `Balance adjustment by admin`,
+          processed_at: new Date().toISOString(),
+          processed_by: profile.id,
+        })
+
+        if (insertError) throw insertError
+      } else if (actionType === 'profit') {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            balance: selectedUser.balance + numAmount,
+            total_profits: selectedUser.total_profits + numAmount,
+          })
+          .eq('id', selectedUser.id)
+
+        if (updateError) throw updateError
+
+        const { error: insertError } = await supabase.from('transactions').insert({
+          user_id: selectedUser.id,
+          type: 'profit_credit',
+          amount: numAmount,
+          status: 'approved',
+          description: description || `Profit credit`,
+          processed_at: new Date().toISOString(),
+          processed_by: profile.id,
+        })
+
+        if (insertError) throw insertError
+      }
+
+      setSuccess(true)
+      setTimeout(() => {
+        setSuccess(false)
+        setSelectedUser(null)
+        setActionType(null)
+        setAmount('')
+        setDescription('')
+      }, 1500)
+
+      fetchUsers()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to process action')
+    } finally {
+      setProcessing(false)
+    }
   }
 
   const closeModal = () => {

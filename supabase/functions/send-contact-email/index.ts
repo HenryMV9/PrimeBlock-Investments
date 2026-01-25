@@ -19,6 +19,17 @@ const SUPPORT_EMAIL = "support@primeblockinvestment.org";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, (char) => map[char]);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -66,6 +77,11 @@ Deno.serve(async (req: Request) => {
 
     if (RESEND_API_KEY) {
       try {
+        const escapedFullName = escapeHtml(fullName);
+        const escapedEmail = escapeHtml(email);
+        const escapedSubject = escapeHtml(subjectMap[subject] || subject);
+        const escapedMessage = escapeHtml(message).replace(/\n/g, "<br>");
+
         const emailSubject = `[Prime Blocks] ${subjectMap[subject] || "Contact Form"} - ${fullName}`;
         const emailBody = `
           <!DOCTYPE html>
@@ -89,20 +105,20 @@ Deno.serve(async (req: Request) => {
               </div>
               <div class="content">
                 <div class="field">
-                  <span class="label">From:</span> ${fullName}
+                  <span class="label">From:</span> ${escapedFullName}
                 </div>
                 <div class="field">
-                  <span class="label">Email:</span> <a href="mailto:${email}">${email}</a>
+                  <span class="label">Email:</span> <a href="mailto:${escapedEmail}">${escapedEmail}</a>
                 </div>
                 <div class="field">
-                  <span class="label">Subject:</span> ${subjectMap[subject] || subject}
+                  <span class="label">Subject:</span> ${escapedSubject}
                 </div>
                 <div class="field">
                   <span class="label">Submitted:</span> ${new Date().toLocaleString()}
                 </div>
                 <div class="message-box">
                   <span class="label">Message:</span>
-                  <p>${message.replace(/\n/g, "<br>")}</p>
+                  <p>${escapedMessage}</p>
                 </div>
               </div>
               <div class="footer">

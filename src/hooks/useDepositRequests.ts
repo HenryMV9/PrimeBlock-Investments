@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { DepositRequest } from '../types'
@@ -9,7 +9,7 @@ export function useDepositRequests() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     if (!user) return
 
     setLoading(true)
@@ -25,7 +25,7 @@ export function useDepositRequests() {
       setRequests(data || [])
     }
     setLoading(false)
-  }
+  }, [user])
 
   const createRequest = async (amount: number, paymentMethod: string, referenceNumber: string, notes: string) => {
     if (!user) return { error: new Error('Not authenticated') }
@@ -69,7 +69,7 @@ export function useDepositRequests() {
 
   useEffect(() => {
     fetchRequests()
-  }, [user?.id])
+  }, [fetchRequests])
 
   return { requests, loading, error, createRequest, refetch: fetchRequests }
 }

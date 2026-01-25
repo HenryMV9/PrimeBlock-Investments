@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { PortfolioPerformance } from '../types'
@@ -10,7 +10,7 @@ export function usePortfolioPerformance() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchPerformance = async () => {
+  const fetchPerformance = useCallback(async () => {
     if (!user) return
 
     setLoading(true)
@@ -28,11 +28,11 @@ export function usePortfolioPerformance() {
       setLatestPerformance(data?.[0] || null)
     }
     setLoading(false)
-  }
+  }, [user])
 
   useEffect(() => {
     fetchPerformance()
-  }, [user?.id])
+  }, [fetchPerformance])
 
   return { performance, latestPerformance, loading, error, refetch: fetchPerformance }
 }

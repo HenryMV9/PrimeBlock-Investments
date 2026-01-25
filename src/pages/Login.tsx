@@ -70,8 +70,9 @@ export default function Login() {
             />
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label htmlFor="remember-me" className="flex items-center gap-2 cursor-pointer">
                 <input
+                  id="remember-me"
                   type="checkbox"
                   className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-slate-900"
                 />

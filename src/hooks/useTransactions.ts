@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Transaction } from '../types'
@@ -9,7 +9,7 @@ export function useTransactions() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     if (!user) return
 
     setLoading(true)
@@ -25,11 +25,11 @@ export function useTransactions() {
       setTransactions(data || [])
     }
     setLoading(false)
-  }
+  }, [user])
 
   useEffect(() => {
     fetchTransactions()
-  }, [user?.id])
+  }, [fetchTransactions])
 
   return { transactions, loading, error, refetch: fetchTransactions }
 }

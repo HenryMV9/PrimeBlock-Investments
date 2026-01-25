@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { KycVerification } from '../types'
@@ -9,7 +9,7 @@ export function useKyc() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchKyc = async () => {
+  const fetchKyc = useCallback(async () => {
     if (!user) return
 
     setLoading(true)
@@ -25,7 +25,7 @@ export function useKyc() {
       setKyc(data)
     }
     setLoading(false)
-  }
+  }, [user])
 
   const submitKyc = async (
     fullName: string,
@@ -60,7 +60,7 @@ export function useKyc() {
 
   useEffect(() => {
     fetchKyc()
-  }, [user?.id])
+  }, [fetchKyc])
 
   return { kyc, loading, error, submitKyc, refetch: fetchKyc }
 }
