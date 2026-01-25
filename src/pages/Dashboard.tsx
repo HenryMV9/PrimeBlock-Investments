@@ -28,11 +28,11 @@ import {
   Crown,
 } from 'lucide-react'
 
-const planDetails: Record<string, { name: string; range: string; icon: typeof Shield }> = {
-  starter: { name: 'Starter Growth Plan', range: '$100 – $1,000', icon: Shield },
-  smart: { name: 'Smart Builder Plan', range: '$1,000 – $10,000', icon: TrendingUp },
-  wealth: { name: 'Wealth Accelerator Plan', range: '$10,000 – $100,000', icon: Zap },
-  elite: { name: 'Elite Crypto Fund Plan', range: '$100,000 – $1,000,000', icon: Crown }
+const planDetails: Record<string, { name: string; range: string; expectedReturns: string; icon: typeof Shield }> = {
+  starter: { name: 'Starter Growth Plan', range: '$100+', expectedReturns: '15-25% ROI', icon: Shield },
+  smart: { name: 'Smart Builder Plan', range: '$1,000+', expectedReturns: '35-50% ROI', icon: TrendingUp },
+  wealth: { name: 'Wealth Accelerator Plan', range: '$10,000+', expectedReturns: '60-85% ROI', icon: Zap },
+  elite: { name: 'Elite Crypto Fund Plan', range: '$100,000+', expectedReturns: '100-150% ROI', icon: Crown }
 }
 
 function formatCurrency(amount: number): string {
@@ -100,9 +100,9 @@ export default function Dashboard() {
       </div>
 
       {profile?.investment_plan && planDetails[profile.investment_plan] && (
-        <Card className="mb-6">
+        <Card className="mb-6 bg-gradient-to-r from-primary-500/10 to-accent-500/10 border-primary-500/30">
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               {(() => {
                 const Icon = planDetails[profile.investment_plan].icon
                 return (
@@ -111,15 +111,21 @@ export default function Dashboard() {
                   </div>
                 )
               })()}
-              <div className="flex-1">
+              <div className="flex-1 min-w-[200px]">
                 <p className="text-sm text-slate-400 mb-1">Your Investment Plan</p>
                 <p className="text-lg font-bold text-white">{planDetails[profile.investment_plan].name}</p>
-                <p className="text-sm text-primary-400">{planDetails[profile.investment_plan].range}</p>
+                <p className="text-sm text-primary-400">{planDetails[profile.investment_plan].range} minimum</p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-slate-400 mb-1">Deposit Range</p>
+                <p className="text-xs text-slate-400 mb-1">Expected Returns</p>
+                <p className="text-emerald-400 font-bold text-lg">
+                  {planDetails[profile.investment_plan].expectedReturns}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-slate-400 mb-1">Min Deposit</p>
                 <p className="text-sm font-semibold text-white">
-                  {formatCurrency(profile.plan_min_amount)} - {formatCurrency(profile.plan_max_amount)}
+                  {formatCurrency(profile.plan_min_amount)}
                 </p>
               </div>
             </div>

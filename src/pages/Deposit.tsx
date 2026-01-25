@@ -61,8 +61,8 @@ export default function Deposit() {
       return
     }
 
-    if (profile && (numAmount < profile.plan_min_amount || numAmount > profile.plan_max_amount)) {
-      setError(`Amount must be between ${formatCurrency(profile.plan_min_amount)} and ${formatCurrency(profile.plan_max_amount)} for your plan`)
+    if (profile && numAmount < profile.plan_min_amount) {
+      setError(`Minimum deposit amount is ${formatCurrency(profile.plan_min_amount)} for your plan`)
       return
     }
 
@@ -117,8 +117,8 @@ export default function Deposit() {
                 <div className="flex items-center gap-3 p-4 mb-6 bg-blue-500/10 border border-blue-500/30 rounded-xl text-blue-400">
                   <Info size={20} />
                   <div>
-                    <p className="font-semibold">Deposit Limit</p>
-                    <p className="text-sm">Your plan allows deposits between {formatCurrency(profile.plan_min_amount)} and {formatCurrency(profile.plan_max_amount)}</p>
+                    <p className="font-semibold">Minimum Deposit</p>
+                    <p className="text-sm">Your plan requires a minimum deposit of {formatCurrency(profile.plan_min_amount)}. You can deposit any amount above this.</p>
                   </div>
                 </div>
               )}
