@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react'
+import { useAuth } from '../context/AuthContext'
 import { useDepositRequests } from '../hooks/useDepositRequests'
 import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
@@ -42,16 +43,15 @@ function formatDate(dateString: string): string {
 }
 
 export default function Deposit() {
-  const { requests, createRequest, loading } = useDepositRequests()
+  const { profile } = useAuth()
+  const { requests, loading } = useDepositRequests()
   const [amount, setAmount] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer')
   const [referenceNumber, setReferenceNumber] = useState('')
   const [notes, setNotes] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     setError('')
 
@@ -61,19 +61,27 @@ export default function Deposit() {
       return
     }
 
-    setSubmitting(true)
-    const { error } = await createRequest(numAmount, paymentMethod, referenceNumber, notes)
-
-    if (error) {
-      setError(error.message)
-    } else {
-      setSuccess(true)
-      setAmount('')
-      setReferenceNumber('')
-      setNotes('')
-      setTimeout(() => setSuccess(false), 3000)
+    if (profile && (numAmount < profile.plan_min_amount || numAmount > profile.plan_max_amount)) {
+      setError(`Amount must be between ${formatCurrency(profile.plan_min_amount)} and ${formatCurrency(profile.plan_max_amount)} for your plan`)
+      return
     }
-    setSubmitting(false)
+
+    const paymentMethodMap: Record<string, string> = {
+      bank_transfer: 'Bank Transfer',
+      wire_transfer: 'Wire Transfer',
+      crypto: 'Cryptocurrency',
+    }
+
+    const message = `*Deposit Request*\n\n` +
+      `Name: ${profile?.full_name || 'N/A'}\n` +
+      `Email: ${profile?.email || 'N/A'}\n` +
+      `Amount: $${numAmount.toFixed(2)}\n` +
+      `Payment Method: ${paymentMethodMap[paymentMethod] || paymentMethod}\n` +
+      `Reference Number: ${referenceNumber || 'N/A'}\n` +
+      `Notes: ${notes || 'N/A'}`
+
+    const whatsappUrl = `https://wa.me/17013173882?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, '_blank')
   }
 
   const pendingRequests = requests.filter((r) => r.status === 'pending')
@@ -105,10 +113,13 @@ export default function Deposit() {
               </div>
             </CardHeader>
             <CardContent>
-              {success && (
-                <div className="flex items-center gap-3 p-4 mb-6 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400">
-                  <CheckCircle size={20} />
-                  <span>Deposit request submitted successfully!</span>
+              {profile && (
+                <div className="flex items-center gap-3 p-4 mb-6 bg-blue-500/10 border border-blue-500/30 rounded-xl text-blue-400">
+                  <Info size={20} />
+                  <div>
+                    <p className="font-semibold">Deposit Limit</p>
+                    <p className="text-sm">Your plan allows deposits between {formatCurrency(profile.plan_min_amount)} and {formatCurrency(profile.plan_max_amount)}</p>
+                  </div>
                 </div>
               )}
 
@@ -160,9 +171,9 @@ export default function Deposit() {
                   />
                 </div>
 
-                <Button type="submit" fullWidth loading={submitting}>
+                <Button type="submit" fullWidth>
                   <ArrowDownToLine size={20} />
-                  Submit Deposit Request
+                  Continue to WhatsApp
                 </Button>
               </form>
             </CardContent>

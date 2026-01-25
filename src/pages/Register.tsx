@@ -1,9 +1,16 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/Button'
 import Input from '../components/Input'
-import { AlertCircle, TrendingUp, CheckCircle } from 'lucide-react'
+import { AlertCircle, TrendingUp, CheckCircle, Shield, Zap, Crown } from 'lucide-react'
+
+const planDetails: Record<string, { name: string; range: string; icon: typeof Shield }> = {
+  starter: { name: 'Starter Growth Plan', range: '$100 – $1,000', icon: Shield },
+  smart: { name: 'Smart Builder Plan', range: '$1,000 – $10,000', icon: TrendingUp },
+  wealth: { name: 'Wealth Accelerator Plan', range: '$10,000 – $100,000', icon: Zap },
+  elite: { name: 'Elite Crypto Fund Plan', range: '$100,000 – $1,000,000', icon: Crown }
+}
 
 export default function Register() {
   const navigate = useNavigate()
@@ -15,6 +22,16 @@ export default function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+
+  useEffect(() => {
+    const plan = sessionStorage.getItem('selectedPlan')
+    if (!plan) {
+      navigate('/investment-plans')
+    } else {
+      setSelectedPlan(plan)
+    }
+  }, [navigate])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -42,13 +59,14 @@ export default function Register() {
 
     setLoading(true)
 
-    const { error } = await signUp(email, password, fullName)
+    const { error } = await signUp(email, password, fullName, selectedPlan || undefined)
 
     if (error) {
       setError(error.message)
       setLoading(false)
     } else {
       setSuccess(true)
+      sessionStorage.removeItem('selectedPlan')
       setTimeout(() => navigate('/dashboard'), 1500)
     }
   }
@@ -66,6 +84,22 @@ export default function Register() {
           <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
           <p className="text-slate-400">Join Prime Blocks Investments today</p>
         </div>
+
+        {selectedPlan && planDetails[selectedPlan] && (
+          <div className="bg-primary-500/10 border border-primary-500/30 rounded-2xl p-4 mb-6 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              {(() => {
+                const Icon = planDetails[selectedPlan].icon
+                return <Icon className="text-primary-400" size={24} />
+              })()}
+              <div>
+                <p className="text-sm text-slate-400">Selected Plan</p>
+                <p className="text-white font-semibold">{planDetails[selectedPlan].name}</p>
+                <p className="text-sm text-primary-400">{planDetails[selectedPlan].range}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8">
           {error && (

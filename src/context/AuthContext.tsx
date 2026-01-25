@@ -67,8 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, fullName: string, investmentPlan?: string) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -77,6 +77,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       },
     })
+
+    if (!error && data.user && investmentPlan) {
+      const planData = {
+        starter: { min: 100, max: 1000 },
+        smart: { min: 1000, max: 10000 },
+        wealth: { min: 10000, max: 100000 },
+        elite: { min: 100000, max: 1000000 }
+      }[investmentPlan] || { min: 100, max: 1000 }
+
+      await supabase
+        .from('profiles')
+        .update({
+          investment_plan: investmentPlan,
+          plan_min_amount: planData.min,
+          plan_max_amount: planData.max
+        })
+        .eq('id', data.user.id)
+    }
+
     return { error: error as Error | null }
   }
 

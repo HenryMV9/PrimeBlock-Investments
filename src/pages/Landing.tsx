@@ -114,15 +114,10 @@ export default function Landing() {
               all in one secure, professional platform.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/register">
+              <Link to="/investment-plans">
                 <Button size="lg" className="shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40">
-                  Start Investing
+                  Start Investment
                   <ArrowRight size={20} />
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button variant="outline" size="lg" className="backdrop-blur-sm">
-                  Access Dashboard
                 </Button>
               </Link>
             </div>

@@ -7,6 +7,9 @@ export interface User {
   total_withdrawals: number
   total_profits: number
   is_admin: boolean
+  investment_plan: string
+  plan_min_amount: number
+  plan_max_amount: number
   created_at: string
 }
 

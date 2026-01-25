@@ -23,7 +23,17 @@ import {
   ShieldCheck,
   ShieldAlert,
   ShieldQuestion,
+  Shield,
+  Zap,
+  Crown,
 } from 'lucide-react'
+
+const planDetails: Record<string, { name: string; range: string; icon: typeof Shield }> = {
+  starter: { name: 'Starter Growth Plan', range: '$100 – $1,000', icon: Shield },
+  smart: { name: 'Smart Builder Plan', range: '$1,000 – $10,000', icon: TrendingUp },
+  wealth: { name: 'Wealth Accelerator Plan', range: '$10,000 – $100,000', icon: Zap },
+  elite: { name: 'Elite Crypto Fund Plan', range: '$100,000 – $1,000,000', icon: Crown }
+}
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -88,6 +98,34 @@ export default function Dashboard() {
           Here's an overview of your investment portfolio.
         </p>
       </div>
+
+      {profile?.investment_plan && planDetails[profile.investment_plan] && (
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              {(() => {
+                const Icon = planDetails[profile.investment_plan].icon
+                return (
+                  <div className="p-3 bg-primary-500/20 rounded-xl">
+                    <Icon className="text-primary-400" size={24} />
+                  </div>
+                )
+              })()}
+              <div className="flex-1">
+                <p className="text-sm text-slate-400 mb-1">Your Investment Plan</p>
+                <p className="text-lg font-bold text-white">{planDetails[profile.investment_plan].name}</p>
+                <p className="text-sm text-primary-400">{planDetails[profile.investment_plan].range}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-slate-400 mb-1">Deposit Range</p>
+                <p className="text-sm font-semibold text-white">
+                  {formatCurrency(profile.plan_min_amount)} - {formatCurrency(profile.plan_max_amount)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 md:mb-8">
         <Card hover>

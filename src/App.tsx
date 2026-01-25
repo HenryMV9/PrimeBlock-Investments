@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Landing from './pages/Landing'
+import InvestmentPlans from './pages/InvestmentPlans'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
@@ -62,6 +63,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/investment-plans" element={<InvestmentPlans />} />
       <Route
         path="/login"
         element={
@@ -70,14 +72,7 @@ function AppRoutes() {
           </PublicRoute>
         }
       />
-      <Route
-        path="/register"
-        element={
-          <PublicRoute>
-            <Register />
-          </PublicRoute>
-        }
-      />
+      <Route path="/register" element={<Register />} />
       <Route
         path="/forgot-password"
         element={
