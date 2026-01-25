@@ -81,9 +81,6 @@ export default function Landing() {
                   Sign In
                 </Button>
               </Link>
-              <Link to="/register">
-                <Button size="sm" className="shadow-lg shadow-blue-500/20">Get Started</Button>
-              </Link>
             </div>
           </div>
         </div>
