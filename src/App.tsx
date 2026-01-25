@@ -11,6 +11,7 @@ import Deposit from './pages/Deposit'
 import Withdraw from './pages/Withdraw'
 import Market from './pages/Market'
 import Support from './pages/Support'
+import KycVerification from './pages/KycVerification'
 import Admin from './pages/Admin'
 import AdminUsers from './pages/AdminUsers'
 import { ReactNode } from 'react'
@@ -138,6 +139,14 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <Support />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/kyc"
+        element={
+          <PrivateRoute>
+            <KycVerification />
           </PrivateRoute>
         }
       />

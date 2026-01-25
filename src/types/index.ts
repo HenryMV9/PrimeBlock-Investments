@@ -41,6 +41,7 @@ export interface DepositRequest {
   status: 'pending' | 'approved' | 'rejected'
   reference_number: string
   notes: string
+  transaction_id: string
   created_at: string
   processed_at: string | null
   processed_by: string | null
@@ -54,7 +55,24 @@ export interface WithdrawalRequest {
   account_details: string
   status: 'pending' | 'approved' | 'rejected'
   notes: string
+  transaction_id: string
   created_at: string
   processed_at: string | null
   processed_by: string | null
+}
+
+export interface KycVerification {
+  id: string
+  user_id: string
+  full_name: string
+  id_type: 'national_id' | 'passport' | 'drivers_license'
+  id_number: string
+  id_image_url: string | null
+  status: 'not_submitted' | 'under_review' | 'verified' | 'rejected'
+  submitted_at: string
+  reviewed_at: string | null
+  reviewed_by: string | null
+  rejection_reason: string | null
+  created_at: string
+  updated_at: string
 }

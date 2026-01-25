@@ -4,6 +4,7 @@ import { useTransactions } from '../hooks/useTransactions'
 import { usePortfolioPerformance } from '../hooks/usePortfolioPerformance'
 import { useDepositRequests } from '../hooks/useDepositRequests'
 import { useWithdrawalRequests } from '../hooks/useWithdrawalRequests'
+import { useKyc } from '../hooks/useKyc'
 import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
 import StatusBadge from '../components/StatusBadge'
@@ -19,6 +20,9 @@ import {
   Percent,
   Clock,
   ArrowRight,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldQuestion,
 } from 'lucide-react'
 
 function formatCurrency(amount: number): string {
@@ -47,10 +51,27 @@ export default function Dashboard() {
   const { latestPerformance } = usePortfolioPerformance()
   const { requests: depositRequests } = useDepositRequests()
   const { requests: withdrawalRequests } = useWithdrawalRequests()
+  const { kyc } = useKyc()
 
   const pendingDeposits = depositRequests.filter((r) => r.status === 'pending').length
   const pendingWithdrawals = withdrawalRequests.filter((r) => r.status === 'pending').length
   const recentTransactions = transactions.slice(0, 5)
+
+  const getKycStatus = () => {
+    if (!kyc) return { label: 'Not Verified', color: 'text-slate-400', bg: 'bg-slate-500/20', icon: ShieldQuestion }
+    switch (kyc.status) {
+      case 'verified':
+        return { label: 'Verified', color: 'text-emerald-400', bg: 'bg-emerald-500/20', icon: ShieldCheck }
+      case 'under_review':
+        return { label: 'Under Review', color: 'text-yellow-400', bg: 'bg-yellow-500/20', icon: Clock }
+      case 'rejected':
+        return { label: 'Rejected', color: 'text-red-400', bg: 'bg-red-500/20', icon: ShieldAlert }
+      default:
+        return { label: 'Not Verified', color: 'text-slate-400', bg: 'bg-slate-500/20', icon: ShieldQuestion }
+    }
+  }
+
+  const kycStatus = getKycStatus()
 
   const portfolioValue = profile?.balance || 0
   const totalDeposits = profile?.total_deposits || 0
@@ -266,6 +287,48 @@ export default function Dashboard() {
               <p className="text-xs md:text-sm text-slate-400">
                 Requests are typically processed within 1-3 business days.
               </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        <Card className={`border ${kycStatus.bg.replace('/20', '/30')}`}>
+          <CardContent className="p-4 md:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 md:p-3 ${kycStatus.bg} rounded-xl`}>
+                  <kycStatus.icon className={`${kycStatus.color} w-5 h-5 md:w-6 md:h-6`} />
+                </div>
+                <div>
+                  <p className="text-slate-400 text-xs md:text-sm">Identity Verification</p>
+                  <p className={`font-semibold ${kycStatus.color}`}>{kycStatus.label}</p>
+                </div>
+              </div>
+            </div>
+            <Link to="/kyc">
+              <Button variant="outline" size="sm" fullWidth>
+                <ShieldCheck size={16} />
+                {kyc?.status === 'verified' ? 'View Status' : 'Verify Identity'}
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardContent className="p-4 md:p-6">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-yellow-500/20 rounded-lg">
+                <ShieldAlert className="text-yellow-400" size={20} />
+              </div>
+              <div>
+                <h4 className="font-medium text-white mb-1">Investment Disclaimer</h4>
+                <p className="text-xs md:text-sm text-slate-400">
+                  All investments carry risk. Past performance does not guarantee future results.
+                  The value of investments can go down as well as up. Please ensure you understand
+                  the risks involved before making investment decisions.
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>

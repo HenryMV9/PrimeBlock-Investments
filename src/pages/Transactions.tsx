@@ -5,6 +5,7 @@ import { useWithdrawalRequests } from '../hooks/useWithdrawalRequests'
 import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
 import StatusBadge from '../components/StatusBadge'
+import TransactionModal from '../components/TransactionModal'
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -12,6 +13,8 @@ import {
   Activity,
   Filter,
   Search,
+  ChevronRight,
+  Hash,
 } from 'lucide-react'
 
 function formatCurrency(amount: number): string {
@@ -34,6 +37,21 @@ function formatDate(dateString: string): string {
 
 type TabType = 'all' | 'deposits' | 'withdrawals'
 
+interface TransactionItem {
+  id: string
+  transactionId?: string
+  type: string
+  amount: number
+  status: string
+  description: string
+  date: string
+  category: 'transaction' | 'deposit' | 'withdrawal'
+  paymentMethod?: string
+  notes?: string
+  accountDetails?: string
+  referenceNumber?: string
+}
+
 export default function Transactions() {
   const { transactions, loading: transactionsLoading } = useTransactions()
   const { requests: depositRequests, loading: depositsLoading } = useDepositRequests()
@@ -41,10 +59,11 @@ export default function Transactions() {
   const [activeTab, setActiveTab] = useState<TabType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [selectedTransaction, setSelectedTransaction] = useState<TransactionItem | null>(null)
 
   const loading = transactionsLoading || depositsLoading || withdrawalsLoading
 
-  const allItems = [
+  const allItems: TransactionItem[] = [
     ...transactions.map((t) => ({
       id: t.id,
       type: t.type as string,
@@ -56,21 +75,29 @@ export default function Transactions() {
     })),
     ...depositRequests.map((d) => ({
       id: d.id,
+      transactionId: d.transaction_id,
       type: 'deposit_request',
       amount: d.amount,
       status: d.status,
-      description: `${d.payment_method} - ${d.reference_number || 'Pending'}`,
+      description: `${d.payment_method?.replace('_', ' ')} - ${d.reference_number || 'Pending'}`,
       date: d.created_at,
       category: 'deposit' as const,
+      paymentMethod: d.payment_method,
+      notes: d.notes,
+      referenceNumber: d.reference_number,
     })),
     ...withdrawalRequests.map((w) => ({
       id: w.id,
+      transactionId: w.transaction_id,
       type: 'withdrawal_request',
       amount: w.amount,
       status: w.status,
-      description: `${w.withdrawal_method}`,
+      description: `${w.withdrawal_method?.replace('_', ' ')}`,
       date: w.created_at,
       category: 'withdrawal' as const,
+      paymentMethod: w.withdrawal_method,
+      notes: w.notes,
+      accountDetails: w.account_details,
     })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
@@ -89,7 +116,8 @@ export default function Transactions() {
       return (
         item.type.toLowerCase().includes(query) ||
         item.description.toLowerCase().includes(query) ||
-        formatCurrency(item.amount).toLowerCase().includes(query)
+        formatCurrency(item.amount).toLowerCase().includes(query) ||
+        item.transactionId?.toLowerCase().includes(query)
       )
     }
     return true
@@ -134,7 +162,7 @@ export default function Transactions() {
           Transaction History
         </h1>
         <p className="text-slate-400">
-          View all your deposits, withdrawals, and account activity.
+          View all your deposits, withdrawals, and account activity. Click any transaction for details.
         </p>
       </div>
 
@@ -165,7 +193,7 @@ export default function Transactions() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
                   type="text"
-                  placeholder="Search transactions..."
+                  placeholder="Search by ID, type, or amount..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-primary-500"
@@ -204,9 +232,10 @@ export default function Transactions() {
           ) : filteredItems.length > 0 ? (
             <div className="divide-y divide-slate-700/50">
               {filteredItems.map((item) => (
-                <div
+                <button
                   key={`${item.category}-${item.id}`}
-                  className="flex items-center justify-between p-4 hover:bg-slate-700/20 transition-colors"
+                  onClick={() => setSelectedTransaction(item)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-700/30 transition-colors text-left"
                 >
                   <div className="flex items-center gap-4">
                     <div className={`p-2 rounded-lg ${getTypeColor(item.type)}`}>
@@ -214,22 +243,31 @@ export default function Transactions() {
                     </div>
                     <div>
                       <p className="text-white font-medium">{getTypeLabel(item.type)}</p>
-                      <p className="text-sm text-slate-400">{item.description || 'No description'}</p>
+                      {item.transactionId && (
+                        <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                          <Hash size={12} />
+                          <span className="font-mono">{item.transactionId}</span>
+                        </div>
+                      )}
+                      <p className="text-sm text-slate-400 mt-1">{item.description || 'No description'}</p>
                       <p className="text-xs text-slate-500 mt-1">{formatDate(item.date)}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className={`text-lg font-semibold ${
-                      ['deposit', 'deposit_request', 'profit_credit'].includes(item.type)
-                        ? 'text-emerald-400'
-                        : 'text-red-400'
-                    }`}>
-                      {['deposit', 'deposit_request', 'profit_credit'].includes(item.type) ? '+' : '-'}
-                      {formatCurrency(item.amount)}
-                    </p>
-                    <StatusBadge status={item.status} />
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className={`text-lg font-semibold ${
+                        ['deposit', 'deposit_request', 'profit_credit'].includes(item.type)
+                          ? 'text-emerald-400'
+                          : 'text-red-400'
+                      }`}>
+                        {['deposit', 'deposit_request', 'profit_credit'].includes(item.type) ? '+' : '-'}
+                        {formatCurrency(item.amount)}
+                      </p>
+                      <StatusBadge status={item.status as 'pending' | 'approved' | 'rejected'} />
+                    </div>
+                    <ChevronRight className="text-slate-500" size={20} />
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           ) : (
@@ -245,6 +283,11 @@ export default function Transactions() {
           )}
         </CardContent>
       </Card>
+
+      <TransactionModal
+        transaction={selectedTransaction}
+        onClose={() => setSelectedTransaction(null)}
+      />
     </Layout>
   )
 }

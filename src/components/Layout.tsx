@@ -9,6 +9,7 @@ import {
   FileText,
   BarChart3,
   MessageSquare,
+  ShieldCheck,
   Users,
   Settings,
   LogOut,
@@ -28,6 +29,7 @@ const userNavItems = [
   { path: '/deposit', label: 'Deposit', icon: ArrowDownToLine },
   { path: '/withdraw', label: 'Withdraw', icon: ArrowUpFromLine },
   { path: '/market', label: 'Market Overview', icon: BarChart3 },
+  { path: '/kyc', label: 'Verify Identity', icon: ShieldCheck },
   { path: '/support', label: 'Support & Contact', icon: MessageSquare },
 ]
 

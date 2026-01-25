@@ -1,4 +1,6 @@
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
+import { useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
 import Button from '../components/Button'
@@ -9,8 +11,6 @@ import {
   CheckCircle,
   AlertCircle,
   Mail,
-  Phone,
-  MapPin,
   Clock,
 } from 'lucide-react'
 
@@ -22,14 +22,39 @@ const subjectOptions = [
   { value: 'deposit', label: 'Deposit Issue' },
 ]
 
+interface LocationState {
+  prefillSubject?: string
+  prefillMessage?: string
+}
+
 export default function Support() {
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [subject, setSubject] = useState('general')
-  const [message, setMessage] = useState('')
+  const location = useLocation()
+  const { profile } = useAuth()
+  const state = location.state as LocationState | null
+
+  const [fullName, setFullName] = useState(profile?.full_name || '')
+  const [email, setEmail] = useState(profile?.email || '')
+  const [subject, setSubject] = useState(state?.prefillSubject || 'general')
+  const [message, setMessage] = useState(state?.prefillMessage || '')
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (profile) {
+      if (!fullName) setFullName(profile.full_name || '')
+      if (!email) setEmail(profile.email || '')
+    }
+  }, [profile])
+
+  useEffect(() => {
+    if (state?.prefillSubject) {
+      setSubject(state.prefillSubject)
+    }
+    if (state?.prefillMessage) {
+      setMessage(state.prefillMessage)
+    }
+  }, [state])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
