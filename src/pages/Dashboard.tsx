@@ -86,7 +86,7 @@ export default function Dashboard() {
   const portfolioValue = profile?.balance || 0
   const totalDeposits = profile?.total_deposits || 0
   const totalProfits = profile?.total_profits || 0
-  const roiPercent = totalDeposits > 0 ? ((portfolioValue - totalDeposits) / totalDeposits) * 100 : 0
+  const roiPercent = profile?.total_roi_percent ?? 0
 
   return (
     <Layout>

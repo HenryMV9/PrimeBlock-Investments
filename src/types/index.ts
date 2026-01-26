@@ -6,6 +6,7 @@ export interface User {
   total_deposits: number
   total_withdrawals: number
   total_profits: number
+  total_roi_percent: number
   is_admin: boolean
   investment_plan: string
   plan_min_amount: number

@@ -14,6 +14,7 @@ import {
   X,
   CheckCircle,
   AlertTriangle,
+  Percent,
 } from 'lucide-react'
 import type { User } from '../types'
 
@@ -39,11 +40,12 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [actionType, setActionType] = useState<'balance' | 'profit' | null>(null)
+  const [actionType, setActionType] = useState<'balance' | 'profit' | 'roi' | null>(null)
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
   const [processing, setProcessing] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
 
   const fetchUsers = async () => {
     setLoading(true)
@@ -126,6 +128,15 @@ export default function AdminUsers() {
         })
 
         if (insertError) throw insertError
+      } else if (actionType === 'roi') {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            total_roi_percent: numAmount,
+          })
+          .eq('id', selectedUser.id)
+
+        if (updateError) throw updateError
       }
 
       setSuccess(true)
@@ -150,6 +161,7 @@ export default function AdminUsers() {
     setActionType(null)
     setAmount('')
     setDescription('')
+    setError('')
   }
 
   if (!profile?.is_admin) {
@@ -287,6 +299,17 @@ export default function AdminUsers() {
                             <TrendingUp size={14} />
                             Credit
                           </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user)
+                              setActionType('roi')
+                            }}
+                          >
+                            <Percent size={14} />
+                            ROI
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -304,7 +327,7 @@ export default function AdminUsers() {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-white">
-                  {actionType === 'balance' ? 'Adjust Balance' : 'Credit Profit'}
+                  {actionType === 'balance' ? 'Adjust Balance' : actionType === 'profit' ? 'Credit Profit' : 'Update ROI'}
                 </h3>
                 <p className="text-sm text-slate-400">{selectedUser.email}</p>
               </div>
@@ -323,39 +346,84 @@ export default function AdminUsers() {
                 </div>
               ) : (
                 <form onSubmit={handleAction} className="space-y-4">
-                  <div className="p-4 bg-slate-700/30 rounded-xl">
-                    <p className="text-sm text-slate-400 mb-1">Current Balance</p>
-                    <p className="text-2xl font-bold text-white">
-                      {formatCurrency(selectedUser.balance)}
-                    </p>
-                  </div>
+                  {actionType === 'roi' ? (
+                    <>
+                      <div className="p-4 bg-slate-700/30 rounded-xl">
+                        <p className="text-sm text-slate-400 mb-1">Current ROI</p>
+                        <p className="text-2xl font-bold text-white">
+                          {selectedUser.total_roi_percent >= 0 ? '+' : ''}{selectedUser.total_roi_percent.toFixed(2)}%
+                        </p>
+                      </div>
 
-                  <Input
-                    label={actionType === 'balance' ? 'Amount (can be negative)' : 'Profit Amount'}
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Enter amount"
-                    step="0.01"
-                    required
-                  />
+                      <Input
+                        label="New ROI Percentage"
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="Enter ROI percentage (e.g., 25.5)"
+                        step="0.01"
+                        required
+                      />
 
-                  <Input
-                    label="Description (Optional)"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Add a note for this transaction"
-                  />
+                      {error && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
+                          {error}
+                        </div>
+                      )}
 
-                  <div className="flex gap-3 pt-4">
-                    <Button type="submit" fullWidth loading={processing}>
-                      <DollarSign size={16} />
-                      {actionType === 'balance' ? 'Update Balance' : 'Credit Profit'}
-                    </Button>
-                    <Button type="button" variant="ghost" onClick={closeModal}>
-                      Cancel
-                    </Button>
-                  </div>
+                      <div className="flex gap-3 pt-4">
+                        <Button type="submit" fullWidth loading={processing}>
+                          <Percent size={16} />
+                          Update ROI
+                        </Button>
+                        <Button type="button" variant="ghost" onClick={closeModal}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="p-4 bg-slate-700/30 rounded-xl">
+                        <p className="text-sm text-slate-400 mb-1">Current Balance</p>
+                        <p className="text-2xl font-bold text-white">
+                          {formatCurrency(selectedUser.balance)}
+                        </p>
+                      </div>
+
+                      <Input
+                        label={actionType === 'balance' ? 'Amount (can be negative)' : 'Profit Amount'}
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="Enter amount"
+                        step="0.01"
+                        required
+                      />
+
+                      <Input
+                        label="Description (Optional)"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Add a note for this transaction"
+                      />
+
+                      {error && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
+                          {error}
+                        </div>
+                      )}
+
+                      <div className="flex gap-3 pt-4">
+                        <Button type="submit" fullWidth loading={processing}>
+                          <DollarSign size={16} />
+                          {actionType === 'balance' ? 'Update Balance' : 'Credit Profit'}
+                        </Button>
+                        <Button type="button" variant="ghost" onClick={closeModal}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </form>
               )}
             </CardContent>
