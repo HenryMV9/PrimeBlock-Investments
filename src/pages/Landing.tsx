@@ -275,13 +275,11 @@ export default function Landing() {
               </div>
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-400">
-              <a href="#" className="hover:text-blue-400 transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-blue-400 transition-colors">Contact</a>
+              <a href="/Support" className="hover:text-blue-400 transition-colors">Contact</a>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-slate-800/50 text-center text-sm text-slate-500">
-            <p className="text-slate-400">2025 Prime Blocks Investments. All rights reserved.</p>
+            <p className="text-slate-400">2026 Prime Blocks Investments. All rights reserved.</p>
           </div>
         </div>
       </footer>
