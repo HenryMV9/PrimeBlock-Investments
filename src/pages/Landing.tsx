@@ -11,6 +11,8 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import Button from '../components/Button'
+import { useCountUp } from '../hooks/useCountUp'
+import { useFadeIn } from '../hooks/useFadeIn'
 
 const features = [
   {
@@ -35,11 +37,11 @@ const features = [
   },
 ]
 
-const stats = [
-  { value: '$50M+', label: 'Assets Under Management' },
-  { value: '10,000+', label: 'Active Investors' },
-  { value: '99.9%', label: 'Platform Uptime' },
-  { value: '24/7', label: 'Customer Support' },
+const statsData = [
+  { end: 50, prefix: '$', suffix: 'M+', label: 'Assets Under Management', decimals: 0 },
+  { end: 10000, prefix: '', suffix: '+', label: 'Active Investors', decimals: 0 },
+  { end: 99.9, prefix: '', suffix: '%', label: 'Platform Uptime', decimals: 1 },
+  { end: 24, prefix: '', suffix: '/7', label: 'Customer Support', decimals: 0 },
 ]
 
 const steps = [
@@ -60,7 +62,31 @@ const steps = [
   },
 ]
 
+function StatCounter({ end, prefix, suffix, label, decimals }: typeof statsData[0]) {
+  const { value, ref, isVisible } = useCountUp({ end, prefix, suffix, decimals, duration: 2500 })
+
+  return (
+    <div ref={ref} className="text-center group">
+      <div className={`text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent mb-2 transition-all duration-700 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      }`}>
+        {value}
+      </div>
+      <div className={`text-slate-300 text-sm sm:text-base font-medium transition-all duration-700 delay-100 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}>
+        {label}
+      </div>
+    </div>
+  )
+}
+
 export default function Landing() {
+  const heroFade = useFadeIn({ threshold: 0.2 })
+  const featuresFade = useFadeIn({ threshold: 0.1 })
+  const stepsFade = useFadeIn({ threshold: 0.1 })
+  const ctaFade = useFadeIn({ threshold: 0.1 })
+
   return (
     <div className="min-h-screen bg-slate-950">
       <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/50 shadow-lg">
@@ -97,20 +123,28 @@ export default function Landing() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent z-10" />
         </div>
         <div className="max-w-7xl mx-auto relative z-20">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm mb-8 backdrop-blur-sm shadow-lg">
+          <div ref={heroFade.ref} className="text-center max-w-4xl mx-auto">
+            <div className={`inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-sm mb-8 backdrop-blur-sm shadow-lg transition-all duration-700 ${
+              heroFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+            }`}>
               <Award size={16} />
               <span className="font-medium">Trusted Investment Platform</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
+            <h1 className={`text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6 transition-all duration-700 delay-100 ${
+              heroFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}>
               Professional Investment
               <span className="block bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent">Management Dashboard</span>
             </h1>
-            <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p className={`text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-200 ${
+              heroFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}>
               Track your portfolio performance, manage transactions, and monitor your investments
               all in one secure, professional platform.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 delay-300 ${
+              heroFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}>
               <Link to="/investment-plans">
                 <Button size="lg" className="shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40">
                   Start Investment
@@ -133,13 +167,8 @@ export default function Landing() {
         </div>
         <div className="max-w-7xl mx-auto relative z-20">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center group">
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent mb-2 group-hover:scale-105 transition-transform">
-                  {stat.value}
-                </div>
-                <div className="text-slate-300 text-sm sm:text-base font-medium">{stat.label}</div>
-              </div>
+            {statsData.map((stat) => (
+              <StatCounter key={stat.label} {...stat} />
             ))}
           </div>
         </div>
@@ -155,7 +184,9 @@ export default function Landing() {
           />
         </div>
         <div className="max-w-7xl mx-auto relative z-20">
-          <div className="text-center mb-16">
+          <div ref={featuresFade.ref} className={`text-center mb-16 transition-all duration-700 ${
+            featuresFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
               Why Choose Prime Blocks
             </h2>
@@ -164,10 +195,13 @@ export default function Landing() {
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature) => (
+            {features.map((feature, index) => (
               <div
                 key={feature.title}
-                className="p-6 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl hover:border-blue-500/50 hover:bg-slate-800/80 transition-all duration-300 group shadow-xl hover:shadow-2xl hover:shadow-blue-500/10"
+                className={`p-6 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl hover:border-blue-500/50 hover:bg-slate-800/80 transition-all duration-700 group shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 ${
+                  featuresFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
                   <feature.icon className="text-blue-400" size={24} />
@@ -192,7 +226,9 @@ export default function Landing() {
           />
         </div>
         <div className="max-w-7xl mx-auto relative z-20">
-          <div className="text-center mb-16">
+          <div ref={stepsFade.ref} className={`text-center mb-16 transition-all duration-700 ${
+            stepsFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
               How It Works
             </h2>
@@ -206,7 +242,10 @@ export default function Landing() {
                 {index < steps.length - 1 && (
                   <div className="hidden lg:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-blue-500/50 to-transparent z-0" />
                 )}
-                <div className="relative z-10 p-8 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl text-center hover:border-blue-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 group">
+                <div className={`relative z-10 p-8 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl text-center hover:border-blue-500/50 transition-all duration-700 hover:shadow-2xl hover:shadow-blue-500/10 group ${
+                  stepsFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: `${index * 150}ms` }}>
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
                     <span className="text-2xl font-bold text-white">{item.step}</span>
                   </div>
@@ -230,14 +269,20 @@ export default function Landing() {
             className="w-full h-full object-cover opacity-10"
           />
         </div>
-        <div className="max-w-4xl mx-auto text-center relative z-20">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+        <div ref={ctaFade.ref} className="max-w-4xl mx-auto text-center relative z-20">
+          <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 transition-all duration-700 ${
+            ctaFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
             Ready to Get Started?
           </h2>
-          <p className="text-slate-300 text-lg mb-10 max-w-2xl mx-auto">
+          <p className={`text-slate-300 text-lg mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
+            ctaFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
             Join thousands of investors tracking their portfolio performance with Prime Blocks.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 delay-200 ${
+            ctaFade.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
             <Link to="/register">
               <Button size="lg" className="shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40">
                 Create Your Account
@@ -275,7 +320,9 @@ export default function Landing() {
               </div>
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-400">
-              <a href="/Support" className="hover:text-blue-400 transition-colors">Contact</a>
+              <Link to="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy Policy</Link>
+              <Link to="/terms-conditions" className="hover:text-blue-400 transition-colors">Terms & Conditions</Link>
+              <Link to="/support" className="hover:text-blue-400 transition-colors">Contact</Link>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-slate-800/50 text-center text-sm text-slate-500">

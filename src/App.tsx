@@ -15,6 +15,8 @@ import Support from './pages/Support'
 import KycVerification from './pages/KycVerification'
 import Admin from './pages/Admin'
 import AdminUsers from './pages/AdminUsers'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsConditions from './pages/TermsConditions'
 import { ReactNode } from 'react'
 
 function PrivateRoute({ children }: { children: ReactNode }) {
@@ -64,6 +66,8 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/investment-plans" element={<InvestmentPlans />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-conditions" element={<TermsConditions />} />
       <Route
         path="/login"
         element={
