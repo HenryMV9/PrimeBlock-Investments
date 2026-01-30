@@ -15,6 +15,10 @@ import {
   CheckCircle,
   AlertTriangle,
   Percent,
+  Eye,
+  Calendar,
+  Mail,
+  CreditCard,
 } from 'lucide-react'
 import type { User } from '../types'
 
@@ -40,7 +44,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [actionType, setActionType] = useState<'balance' | 'profit' | 'roi' | null>(null)
+  const [actionType, setActionType] = useState<'balance' | 'profit' | 'roi' | 'profile' | null>(null)
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
   const [processing, setProcessing] = useState(false)
@@ -230,10 +234,11 @@ export default function AdminUsers() {
                 <thead>
                   <tr className="border-b border-slate-700/50">
                     <th className="text-left p-4 text-sm font-medium text-slate-400">User</th>
+                    <th className="text-right p-4 text-sm font-medium text-slate-400">Plan</th>
                     <th className="text-right p-4 text-sm font-medium text-slate-400">Balance</th>
                     <th className="text-right p-4 text-sm font-medium text-slate-400">Deposits</th>
                     <th className="text-right p-4 text-sm font-medium text-slate-400">Profits</th>
-                    <th className="text-right p-4 text-sm font-medium text-slate-400">Joined</th>
+                    <th className="text-right p-4 text-sm font-medium text-slate-400">ROI</th>
                     <th className="text-right p-4 text-sm font-medium text-slate-400">Actions</th>
                   </tr>
                 </thead>
@@ -261,6 +266,11 @@ export default function AdminUsers() {
                           )}
                         </div>
                       </td>
+                      <td className="p-4 text-right">
+                        <span className="inline-flex px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full capitalize">
+                          {user.investment_plan}
+                        </span>
+                      </td>
                       <td className="p-4 text-right text-white font-medium">
                         {formatCurrency(user.balance)}
                       </td>
@@ -272,11 +282,24 @@ export default function AdminUsers() {
                       }`}>
                         {formatCurrency(user.total_profits)}
                       </td>
-                      <td className="p-4 text-right text-slate-400">
-                        {formatDate(user.created_at)}
+                      <td className={`p-4 text-right font-medium ${
+                        user.total_roi_percent >= 0 ? 'text-emerald-400' : 'text-red-400'
+                      }`}>
+                        {user.total_roi_percent >= 0 ? '+' : ''}{user.total_roi_percent.toFixed(2)}%
                       </td>
                       <td className="p-4 text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-2 flex-wrap">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user)
+                              setActionType('profile')
+                            }}
+                          >
+                            <Eye size={14} />
+                            View
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
@@ -327,7 +350,7 @@ export default function AdminUsers() {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-white">
-                  {actionType === 'balance' ? 'Adjust Balance' : actionType === 'profit' ? 'Credit Profit' : 'Update ROI'}
+                  {actionType === 'balance' ? 'Adjust Balance' : actionType === 'profit' ? 'Credit Profit' : actionType === 'roi' ? 'Update ROI' : 'User Profile'}
                 </h3>
                 <p className="text-sm text-slate-400">{selectedUser.email}</p>
               </div>
@@ -343,6 +366,83 @@ export default function AdminUsers() {
                 <div className="text-center py-8">
                   <CheckCircle className="mx-auto text-emerald-400 mb-4" size={48} />
                   <p className="text-white font-medium">Action completed successfully!</p>
+                </div>
+              ) : actionType === 'profile' ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-slate-700/30 rounded-xl">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Mail className="text-slate-400" size={16} />
+                        <p className="text-sm text-slate-400">Email</p>
+                      </div>
+                      <p className="text-white font-medium break-all">{selectedUser.email}</p>
+                    </div>
+                    <div className="p-4 bg-slate-700/30 rounded-xl">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Users className="text-slate-400" size={16} />
+                        <p className="text-sm text-slate-400">Full Name</p>
+                      </div>
+                      <p className="text-white font-medium">{selectedUser.full_name || 'Not set'}</p>
+                    </div>
+                    <div className="p-4 bg-slate-700/30 rounded-xl">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CreditCard className="text-slate-400" size={16} />
+                        <p className="text-sm text-slate-400">Investment Plan</p>
+                      </div>
+                      <p className="text-white font-medium capitalize">{selectedUser.investment_plan}</p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        {formatCurrency(selectedUser.plan_min_amount)} - {formatCurrency(selectedUser.plan_max_amount)}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-slate-700/30 rounded-xl">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="text-slate-400" size={16} />
+                        <p className="text-sm text-slate-400">Joined</p>
+                      </div>
+                      <p className="text-white font-medium">{formatDate(selectedUser.created_at)}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-slate-700/30 rounded-xl">
+                      <p className="text-sm text-slate-400 mb-1">Balance</p>
+                      <p className="text-2xl font-bold text-white">{formatCurrency(selectedUser.balance)}</p>
+                    </div>
+                    <div className="p-4 bg-slate-700/30 rounded-xl">
+                      <p className="text-sm text-slate-400 mb-1">Total Deposits</p>
+                      <p className="text-2xl font-bold text-white">{formatCurrency(selectedUser.total_deposits)}</p>
+                    </div>
+                    <div className="p-4 bg-slate-700/30 rounded-xl">
+                      <p className="text-sm text-slate-400 mb-1">Total Profits</p>
+                      <p className={`text-2xl font-bold ${selectedUser.total_profits >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {formatCurrency(selectedUser.total_profits)}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-slate-700/30 rounded-xl">
+                      <p className="text-sm text-slate-400 mb-1">Total ROI</p>
+                      <p className={`text-2xl font-bold ${selectedUser.total_roi_percent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {selectedUser.total_roi_percent >= 0 ? '+' : ''}{selectedUser.total_roi_percent.toFixed(2)}%
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-slate-700/30 rounded-xl">
+                    <p className="text-sm text-slate-400 mb-1">Total Withdrawals</p>
+                    <p className="text-xl font-bold text-white">{formatCurrency(selectedUser.total_withdrawals)}</p>
+                  </div>
+
+                  {selectedUser.is_admin && (
+                    <div className="p-3 bg-accent-500/10 border border-accent-500/30 rounded-xl text-accent-400 text-sm flex items-center gap-2">
+                      <CheckCircle size={16} />
+                      <span>This user has administrator privileges</span>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 pt-4">
+                    <Button type="button" variant="ghost" onClick={closeModal} fullWidth>
+                      Close
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleAction} className="space-y-4">

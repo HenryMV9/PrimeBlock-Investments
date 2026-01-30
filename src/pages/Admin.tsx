@@ -61,8 +61,22 @@ export default function Admin() {
 
     const [usersRes, depositsRes, withdrawalsRes] = await Promise.all([
       supabase.from('profiles').select('id, balance'),
-      supabase.from('deposit_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
-      supabase.from('withdrawal_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
+      supabase
+        .from('deposit_requests')
+        .select(`
+          *,
+          user:profiles!deposit_requests_user_id_fkey(email, full_name)
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('withdrawal_requests')
+        .select(`
+          *,
+          user:profiles!withdrawal_requests_user_id_fkey(email, full_name)
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false }),
     ])
 
     const users = usersRes.data || []
@@ -284,9 +298,21 @@ export default function Admin() {
                 {pendingDeposits.slice(0, 5).map((deposit) => (
                   <div key={deposit.id} className="p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-white font-medium">{formatCurrency(deposit.amount)}</p>
-                        <p className="text-sm text-slate-400">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs font-medium">
+                              {(deposit as any).user?.full_name?.charAt(0)?.toUpperCase() || (deposit as any).user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                            </span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-white font-medium">{formatCurrency(deposit.amount)}</p>
+                            <p className="text-xs text-slate-400 truncate">
+                              {(deposit as any).user?.email || 'Unknown user'}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-400 mt-2">
                           {deposit.payment_method.replace('_', ' ')}
                           {deposit.reference_number && ` - ${deposit.reference_number}`}
                         </p>
@@ -348,11 +374,26 @@ export default function Admin() {
                 {pendingWithdrawals.slice(0, 5).map((withdrawal) => (
                   <div key={withdrawal.id} className="p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-white font-medium">{formatCurrency(withdrawal.amount)}</p>
-                        <p className="text-sm text-slate-400">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs font-medium">
+                              {(withdrawal as any).user?.full_name?.charAt(0)?.toUpperCase() || (withdrawal as any).user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                            </span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-white font-medium">{formatCurrency(withdrawal.amount)}</p>
+                            <p className="text-xs text-slate-400 truncate">
+                              {(withdrawal as any).user?.email || 'Unknown user'}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-400 mt-2">
                           {withdrawal.withdrawal_method.replace('_', ' ')}
                         </p>
+                        {withdrawal.account_details && (
+                          <p className="text-xs text-slate-500 truncate">{withdrawal.account_details}</p>
+                        )}
                         <p className="text-xs text-slate-500">{formatDate(withdrawal.created_at)}</p>
                       </div>
                       <StatusBadge status={withdrawal.status} />
