@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard'
 import Account from './pages/Account'
 import Transactions from './pages/Transactions'
 import Deposit from './pages/Deposit'
+import CryptoWallet from './pages/CryptoWallet'
 import Withdraw from './pages/Withdraw'
 import Market from './pages/Market'
 import Support from './pages/Support'
@@ -114,6 +115,14 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <Deposit />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/deposit/:crypto"
+        element={
+          <PrivateRoute>
+            <CryptoWallet />
           </PrivateRoute>
         }
       />

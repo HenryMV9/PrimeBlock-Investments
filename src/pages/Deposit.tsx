@@ -1,27 +1,26 @@
 import { useState, FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useDepositRequests } from '../hooks/useDepositRequests'
 import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
 import Button from '../components/Button'
 import Input from '../components/Input'
-import Select from '../components/Select'
 import StatusBadge from '../components/StatusBadge'
 import {
   ArrowDownToLine,
-  CheckCircle,
   AlertCircle,
   Clock,
   Info,
-  CreditCard,
-  Building2,
-  Banknote,
+  Bitcoin,
+  Wallet,
 } from 'lucide-react'
 
 const paymentMethods = [
-  { value: 'bank_transfer', label: 'Bank Transfer' },
-  { value: 'wire_transfer', label: 'Wire Transfer' },
-  { value: 'crypto', label: 'Cryptocurrency' },
+  { value: 'BTC', label: 'Bitcoin (BTC)', icon: Bitcoin },
+  { value: 'ETH', label: 'Ethereum (ETH)', icon: Wallet },
+  { value: 'USDT', label: 'USDT (TRC20)', icon: Wallet },
+  { value: 'SOLANA', label: 'Solana (SOL)', icon: Wallet },
 ]
 
 function formatCurrency(amount: number): string {
@@ -43,16 +42,13 @@ function formatDate(dateString: string): string {
 }
 
 export default function Deposit() {
+  const navigate = useNavigate()
   const { profile } = useAuth()
   const { requests, loading } = useDepositRequests()
   const [amount, setAmount] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState('bank_transfer')
-  const [referenceNumber, setReferenceNumber] = useState('')
-  const [notes, setNotes] = useState('')
   const [error, setError] = useState('')
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
+  const handleCryptoSelect = (crypto: string) => {
     setError('')
 
     const numAmount = parseFloat(amount)
@@ -66,22 +62,7 @@ export default function Deposit() {
       return
     }
 
-    const paymentMethodMap: Record<string, string> = {
-      bank_transfer: 'Bank Transfer',
-      wire_transfer: 'Wire Transfer',
-      crypto: 'Cryptocurrency',
-    }
-
-    const message = `*Deposit Request*\n\n` +
-      `Name: ${profile?.full_name || 'N/A'}\n` +
-      `Email: ${profile?.email || 'N/A'}\n` +
-      `Amount: $${numAmount.toFixed(2)}\n` +
-      `Payment Method: ${paymentMethodMap[paymentMethod] || paymentMethod}\n` +
-      `Reference Number: ${referenceNumber || 'N/A'}\n` +
-      `Notes: ${notes || 'N/A'}`
-
-    const whatsappUrl = `https://wa.me/17013173882?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
+    navigate(`/deposit/${crypto.toLowerCase()}`, { state: { amount: numAmount } })
   }
 
   const pendingRequests = requests.filter((r) => r.status === 'pending')
@@ -130,7 +111,7 @@ export default function Deposit() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-6">
                 <Input
                   label="Amount (USD)"
                   type="number"
@@ -142,40 +123,33 @@ export default function Deposit() {
                   required
                 />
 
-                <Select
-                  label="Payment Method"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  options={paymentMethods}
-                />
-
-                <Input
-                  label="Reference Number (Optional)"
-                  type="text"
-                  value={referenceNumber}
-                  onChange={(e) => setReferenceNumber(e.target.value)}
-                  placeholder="Transaction or reference number"
-                  helpText="Enter any reference number from your payment"
-                />
-
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label className="block text-sm font-medium text-slate-300">
-                    Additional Notes (Optional)
+                    Select Cryptocurrency
                   </label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any additional information about your deposit"
-                    rows={3}
-                    className="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 resize-none"
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {paymentMethods.map((method) => {
+                      const IconComponent = method.icon
+                      return (
+                        <button
+                          key={method.value}
+                          type="button"
+                          onClick={() => handleCryptoSelect(method.value)}
+                          className="flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-600/50 rounded-xl text-left hover:bg-slate-700/50 hover:border-primary-500/50 transition-all group"
+                        >
+                          <div className="p-3 bg-primary-500/20 rounded-lg group-hover:bg-primary-500/30 transition-colors">
+                            <IconComponent className="text-primary-400" size={24} />
+                          </div>
+                          <div>
+                            <p className="text-white font-medium">{method.label}</p>
+                            <p className="text-xs text-slate-400">Click to continue</p>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
-
-                <Button type="submit" fullWidth>
-                  <ArrowDownToLine size={20} />
-                  Continue to WhatsApp
-                </Button>
-              </form>
+              </div>
             </CardContent>
           </Card>
 
@@ -234,34 +208,51 @@ export default function Deposit() {
 
           <Card>
             <CardHeader>
-              <h3 className="font-semibold text-white">Payment Instructions</h3>
+              <h3 className="font-semibold text-white">How It Works</h3>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 bg-slate-700/30 rounded-xl">
-                <div className="flex items-center gap-2 text-slate-300 mb-2">
-                  <Building2 size={18} />
-                  <span className="font-medium">Bank Transfer</span>
+                <div className="flex items-center gap-2 text-emerald-400 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold">
+                    1
+                  </div>
+                  <span className="font-medium text-slate-300">Enter Amount</span>
                 </div>
                 <p className="text-sm text-slate-400">
-                  Contact support to receive bank transfer details.
+                  Specify the USD amount you wish to deposit.
                 </p>
               </div>
               <div className="p-4 bg-slate-700/30 rounded-xl">
-                <div className="flex items-center gap-2 text-slate-300 mb-2">
-                  <Banknote size={18} />
-                  <span className="font-medium">Wire Transfer</span>
+                <div className="flex items-center gap-2 text-blue-400 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-xs font-bold">
+                    2
+                  </div>
+                  <span className="font-medium text-slate-300">Select Crypto</span>
                 </div>
                 <p className="text-sm text-slate-400">
-                  International wire transfers accepted. Contact support for SWIFT details.
+                  Choose your preferred cryptocurrency (BTC, ETH, USDT, or SOL).
                 </p>
               </div>
               <div className="p-4 bg-slate-700/30 rounded-xl">
-                <div className="flex items-center gap-2 text-slate-300 mb-2">
-                  <CreditCard size={18} />
-                  <span className="font-medium">Cryptocurrency</span>
+                <div className="flex items-center gap-2 text-purple-400 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-xs font-bold">
+                    3
+                  </div>
+                  <span className="font-medium text-slate-300">Send Payment</span>
                 </div>
                 <p className="text-sm text-slate-400">
-                  BTC, ETH, USDT accepted. Contact support for wallet addresses.
+                  Transfer funds to the displayed wallet address.
+                </p>
+              </div>
+              <div className="p-4 bg-slate-700/30 rounded-xl">
+                <div className="flex items-center gap-2 text-amber-400 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-xs font-bold">
+                    4
+                  </div>
+                  <span className="font-medium text-slate-300">Confirm & Wait</span>
+                </div>
+                <p className="text-sm text-slate-400">
+                  Confirm payment and wait for admin approval.
                 </p>
               </div>
             </CardContent>
