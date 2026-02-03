@@ -11,6 +11,25 @@ interface ProfitIncrementResult {
   processed: number;
   errors: number;
   totalProfit: number;
+  skipped: number;
+}
+
+function getRandomProfitByPlan(plan: string): number {
+  const baseMin = 1;
+  const baseMax = 10;
+
+  switch (plan) {
+    case "starter":
+      return baseMin + Math.random() * 2;
+    case "smart":
+      return baseMin + 1 + Math.random() * 3;
+    case "wealth":
+      return baseMin + 2 + Math.random() * 5;
+    case "elite":
+      return baseMin + 4 + Math.random() * 5;
+    default:
+      return baseMin + Math.random() * (baseMax - baseMin);
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -26,49 +45,21 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { data: settings } = await supabase
-      .from("admin_settings")
-      .select("*");
-
-    const settingsMap: Record<string, string> = {};
-    settings?.forEach((s) => {
-      settingsMap[s.setting_key] = s.setting_value;
-    });
-
-    const autoProfitEnabled = settingsMap["auto_profit_enabled"] === "true";
-    if (!autoProfitEnabled) {
-      return new Response(
-        JSON.stringify({
-          message: "Auto-profit is globally disabled",
-          processed: 0,
-        }),
-        {
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
-
-    const starterRate = parseFloat(settingsMap["starter_increment_rate"] || "1.0");
-    const smartRate = parseFloat(settingsMap["smart_increment_rate"] || "5.0");
-    const wealthRate = parseFloat(settingsMap["wealth_increment_rate"] || "15.0");
-    const eliteRate = parseFloat(settingsMap["elite_increment_rate"] || "50.0");
-    const maxDailyCap = parseFloat(settingsMap["max_daily_profit_cap"] || "10000");
-    const intervalHours = parseFloat(settingsMap["increment_interval_hours"] || "24");
-
-    const { data: users } = await supabase
+    const { data: users, error: fetchError } = await supabase
       .from("profiles")
       .select("*")
-      .eq("auto_profit_enabled", true)
       .gt("total_deposits", 0);
+
+    if (fetchError) {
+      throw fetchError;
+    }
 
     if (!users || users.length === 0) {
       return new Response(
         JSON.stringify({
           message: "No eligible users found",
           processed: 0,
+          skipped: 0,
         }),
         {
           headers: {
@@ -84,6 +75,7 @@ Deno.serve(async (req: Request) => {
       processed: 0,
       errors: 0,
       totalProfit: 0,
+      skipped: 0,
     };
 
     for (const user of users) {
@@ -95,77 +87,47 @@ Deno.serve(async (req: Request) => {
         if (lastIncrement) {
           const hoursSinceLastIncrement =
             (now.getTime() - lastIncrement.getTime()) / (1000 * 60 * 60);
-          if (hoursSinceLastIncrement < intervalHours) {
+          if (hoursSinceLastIncrement < 24) {
+            result.skipped++;
             continue;
           }
         }
 
-        if (user.daily_profit_total >= maxDailyCap) {
-          continue;
-        }
-
-        let incrementAmount = 0;
         const plan = user.investment_plan || "starter";
+        const profitAmount = getRandomProfitByPlan(plan);
+        const roundedProfit = Math.round(profitAmount * 100) / 100;
 
-        switch (plan) {
-          case "starter":
-            incrementAmount = starterRate;
-            break;
-          case "smart":
-            incrementAmount = smartRate;
-            break;
-          case "wealth":
-            incrementAmount = wealthRate;
-            break;
-          case "elite":
-            incrementAmount = eliteRate;
-            break;
-          default:
-            incrementAmount = starterRate;
-        }
+        const newBalance = parseFloat(user.balance) + roundedProfit;
+        const newTotalProfits = parseFloat(user.total_profits) + roundedProfit;
 
-        const balanceFactor = Math.min(user.balance / 1000, 5);
-        incrementAmount *= (1 + balanceFactor * 0.1);
-
-        const remainingCap = maxDailyCap - user.daily_profit_total;
-        incrementAmount = Math.min(incrementAmount, remainingCap);
-
-        if (incrementAmount <= 0) {
-          continue;
-        }
-
-        const newBalance = parseFloat(user.balance) + incrementAmount;
-        const newTotalProfits = parseFloat(user.total_profits) + incrementAmount;
-        const newDailyTotal = parseFloat(user.daily_profit_total) + incrementAmount;
-
-        await supabase
+        const { error: updateError } = await supabase
           .from("profiles")
           .update({
             balance: newBalance,
             total_profits: newTotalProfits,
-            daily_profit_total: newDailyTotal,
             last_profit_increment: now.toISOString(),
           })
           .eq("id", user.id);
 
-        await supabase.from("transactions").insert({
+        if (updateError) {
+          throw updateError;
+        }
+
+        const { error: transactionError } = await supabase.from("transactions").insert({
           user_id: user.id,
           type: "profit_credit",
-          amount: incrementAmount,
+          amount: roundedProfit,
           status: "approved",
-          description: `System-Generated Earnings (${plan})`,
+          description: `Daily Profit (${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan)`,
           processed_at: now.toISOString(),
         });
 
-        await supabase.from("profit_history").insert({
-          user_id: user.id,
-          amount: incrementAmount,
-          plan_name: plan,
-          increment_type: "automatic",
-        });
+        if (transactionError) {
+          throw transactionError;
+        }
 
         result.processed++;
-        result.totalProfit += incrementAmount;
+        result.totalProfit += roundedProfit;
       } catch (error) {
         console.error(`Error processing user ${user.id}:`, error);
         result.errors++;
@@ -174,7 +136,7 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
-        message: "Profit increment completed",
+        message: "Daily profit distribution completed",
         ...result,
       }),
       {
