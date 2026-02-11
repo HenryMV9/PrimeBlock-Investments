@@ -59,7 +59,7 @@ const cryptoConfigs: Record<string, CryptoConfig> = {
   usdt: {
     name: 'USDT (TRC20)',
     symbol: 'USDT',
-    address: '0xb50aa42893d507094a1df637647fcc2F6b586633',
+    address: 'TP3kdbtf6oez6Wgqe6ftdw1PUmEiypyV5Z',
     icon: Wallet,
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/20',
