@@ -1,20 +1,12 @@
-import { useState, FormEvent } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useDepositRequests } from '../hooks/useDepositRequests'
 import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
-import Button from '../components/Button'
 import Input from '../components/Input'
 import StatusBadge from '../components/StatusBadge'
-import {
-  ArrowDownToLine,
-  AlertCircle,
-  Clock,
-  Info,
-  Bitcoin,
-  Wallet,
-} from 'lucide-react'
+import { ArrowDownToLine, CircleAlert as AlertCircle, Clock, Info, Bitcoin, Wallet } from 'lucide-react'
 
 const paymentMethods = [
   { value: 'BTC', label: 'Bitcoin (BTC)', icon: Bitcoin },
@@ -44,7 +36,7 @@ function formatDate(dateString: string): string {
 export default function Deposit() {
   const navigate = useNavigate()
   const { profile } = useAuth()
-  const { requests, loading } = useDepositRequests()
+  const { requests } = useDepositRequests()
   const [amount, setAmount] = useState('')
   const [error, setError] = useState('')
 
@@ -66,7 +58,6 @@ export default function Deposit() {
   }
 
   const pendingRequests = requests.filter((r) => r.status === 'pending')
-  const completedRequests = requests.filter((r) => r.status !== 'pending')
 
   return (
     <Layout>

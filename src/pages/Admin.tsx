@@ -6,17 +6,7 @@ import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
 import Button from '../components/Button'
 import StatusBadge from '../components/StatusBadge'
-import {
-  Users,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  DollarSign,
-  CheckCircle,
-  XCircle,
-  ArrowRight,
-  Activity,
-  AlertTriangle,
-} from 'lucide-react'
+import { Users, ArrowDownToLine, ArrowUpFromLine, DollarSign, CircleCheck as CheckCircle, Circle as XCircle, ArrowRight, Activity, TriangleAlert as AlertTriangle } from 'lucide-react'
 import type { DepositRequest, WithdrawalRequest } from '../types'
 
 interface Stats {
@@ -105,15 +95,18 @@ export default function Admin() {
     if (!profile) return
     setProcessing(deposit.id)
 
-    if (action === 'approved') {
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('balance, total_deposits')
-        .eq('id', deposit.user_id)
-        .maybeSingle()
+    try {
+      if (action === 'approved') {
+        const { data: userProfile, error: fetchError } = await supabase
+          .from('profiles')
+          .select('balance, total_deposits')
+          .eq('id', deposit.user_id)
+          .maybeSingle()
 
-      if (userProfile) {
-        await supabase
+        if (fetchError) throw fetchError
+        if (!userProfile) throw new Error('User profile not found')
+
+        const { error: balanceError } = await supabase
           .from('profiles')
           .update({
             balance: userProfile.balance + deposit.amount,
@@ -121,7 +114,9 @@ export default function Admin() {
           })
           .eq('id', deposit.user_id)
 
-        await supabase.from('transactions').insert({
+        if (balanceError) throw balanceError
+
+        const { error: txError } = await supabase.from('transactions').insert({
           user_id: deposit.user_id,
           type: 'deposit',
           amount: deposit.amount,
@@ -130,17 +125,24 @@ export default function Admin() {
           processed_at: new Date().toISOString(),
           processed_by: profile.id,
         })
-      }
-    }
 
-    await supabase
-      .from('deposit_requests')
-      .update({
-        status: action,
-        processed_at: new Date().toISOString(),
-        processed_by: profile.id,
-      })
-      .eq('id', deposit.id)
+        if (txError) throw txError
+      }
+
+      const { error: statusError } = await supabase
+        .from('deposit_requests')
+        .update({
+          status: action,
+          processed_at: new Date().toISOString(),
+          processed_by: profile.id,
+        })
+        .eq('id', deposit.id)
+
+      if (statusError) throw statusError
+    } catch (err) {
+      console.error('Error processing deposit:', err)
+      alert('Failed to process deposit. Please try again.')
+    }
 
     setProcessing(null)
     fetchData()
@@ -150,15 +152,24 @@ export default function Admin() {
     if (!profile) return
     setProcessing(withdrawal.id)
 
-    if (action === 'approved') {
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('balance, total_withdrawals')
-        .eq('id', withdrawal.user_id)
-        .maybeSingle()
+    try {
+      if (action === 'approved') {
+        const { data: userProfile, error: fetchError } = await supabase
+          .from('profiles')
+          .select('balance, total_withdrawals')
+          .eq('id', withdrawal.user_id)
+          .maybeSingle()
 
-      if (userProfile && userProfile.balance >= withdrawal.amount) {
-        await supabase
+        if (fetchError) throw fetchError
+        if (!userProfile) throw new Error('User profile not found')
+
+        if (userProfile.balance < withdrawal.amount) {
+          alert(`Cannot approve: user balance (${formatCurrency(userProfile.balance)}) is less than withdrawal amount (${formatCurrency(withdrawal.amount)}).`)
+          setProcessing(null)
+          return
+        }
+
+        const { error: balanceError } = await supabase
           .from('profiles')
           .update({
             balance: userProfile.balance - withdrawal.amount,
@@ -166,7 +177,9 @@ export default function Admin() {
           })
           .eq('id', withdrawal.user_id)
 
-        await supabase.from('transactions').insert({
+        if (balanceError) throw balanceError
+
+        const { error: txError } = await supabase.from('transactions').insert({
           user_id: withdrawal.user_id,
           type: 'withdrawal',
           amount: withdrawal.amount,
@@ -175,17 +188,24 @@ export default function Admin() {
           processed_at: new Date().toISOString(),
           processed_by: profile.id,
         })
-      }
-    }
 
-    await supabase
-      .from('withdrawal_requests')
-      .update({
-        status: action,
-        processed_at: new Date().toISOString(),
-        processed_by: profile.id,
-      })
-      .eq('id', withdrawal.id)
+        if (txError) throw txError
+      }
+
+      const { error: statusError } = await supabase
+        .from('withdrawal_requests')
+        .update({
+          status: action,
+          processed_at: new Date().toISOString(),
+          processed_by: profile.id,
+        })
+        .eq('id', withdrawal.id)
+
+      if (statusError) throw statusError
+    } catch (err) {
+      console.error('Error processing withdrawal:', err)
+      alert('Failed to process withdrawal. Please try again.')
+    }
 
     setProcessing(null)
     fetchData()

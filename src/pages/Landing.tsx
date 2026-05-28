@@ -1,15 +1,5 @@
 import { Link } from 'react-router-dom'
-import {
-  TrendingUp,
-  Shield,
-  BarChart3,
-  Clock,
-  Users,
-  Award,
-  ArrowRight,
-  CheckCircle,
-  AlertTriangle,
-} from 'lucide-react'
+import { TrendingUp, Shield, ChartBar as BarChart3, Clock, Users, Award, ArrowRight, CircleCheck as CheckCircle } from 'lucide-react'
 import Button from '../components/Button'
 import { useCountUp } from '../hooks/useCountUp'
 import { useFadeIn } from '../hooks/useFadeIn'

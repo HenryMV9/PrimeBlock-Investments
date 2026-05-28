@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { TrendingUp, Shield, Zap, Crown, Check, Sparkles, TrendingUpIcon } from 'lucide-react'
+import { TrendingUp, Shield, Zap, Crown, Check, Sparkles, TrendingUp as TrendingUpIcon } from 'lucide-react'
 import Button from '../components/Button'
 
 interface Plan {
@@ -120,6 +120,7 @@ export default function InvestmentPlans() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
 
   const handleSelectPlan = (planId: string) => {
+    setSelectedPlan(planId)
     sessionStorage.setItem('selectedPlan', planId)
     navigate('/register')
   }

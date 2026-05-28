@@ -5,31 +5,23 @@ import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
 import Button from '../components/Button'
-import {
-  ArrowLeft,
-  Copy,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  Wallet,
-  Bitcoin,
-} from 'lucide-react'
+import { ArrowLeft, Copy, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Info, Wallet, Bitcoin } from 'lucide-react'
 
 type CryptoConfig = {
   name: string
   symbol: string
-  address: string
+  settingKey: string
   icon: typeof Bitcoin
   color: string
   bgColor: string
   instructions: string[]
 }
 
-const cryptoConfigs: Record<string, CryptoConfig> = {
+const cryptoMeta: Record<string, Omit<CryptoConfig, 'address'> & { settingKey: string }> = {
   btc: {
     name: 'Bitcoin',
     symbol: 'BTC',
-    address: 'bc1qznu7cmr8kjz4emanwsa0cta7uhma27ej68zmuw',
+    settingKey: 'wallet_btc',
     icon: Bitcoin,
     color: 'text-orange-400',
     bgColor: 'bg-orange-500/20',
@@ -38,13 +30,13 @@ const cryptoConfigs: Record<string, CryptoConfig> = {
       'Open your Bitcoin wallet app',
       'Send the exact amount in BTC equivalent to your USD deposit',
       'Make sure to use the Bitcoin network',
-      'After sending, click "I\'ve Made the Payment" below',
+      "After sending, click \"I've Made the Payment\" below",
     ],
   },
   eth: {
     name: 'Ethereum',
     symbol: 'ETH',
-    address: '0xB63627E9aC9FFC3fe36bEDc13025C5572953bA8D',
+    settingKey: 'wallet_eth',
     icon: Wallet,
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/20',
@@ -53,13 +45,13 @@ const cryptoConfigs: Record<string, CryptoConfig> = {
       'Open your Ethereum wallet app',
       'Send the exact amount in ETH equivalent to your USD deposit',
       'Make sure to use the Ethereum mainnet',
-      'After sending, click "I\'ve Made the Payment" below',
+      "After sending, click \"I've Made the Payment\" below",
     ],
   },
   usdt: {
     name: 'USDT (TRC20)',
     symbol: 'USDT',
-    address: 'TP3kdbtf6oez6Wgqe6ftdw1PUmEiypyV5Z',
+    settingKey: 'wallet_usdt',
     icon: Wallet,
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/20',
@@ -68,22 +60,22 @@ const cryptoConfigs: Record<string, CryptoConfig> = {
       'Open your USDT wallet app',
       'Send the exact amount in USDT to the address',
       'IMPORTANT: Use TRC20 network only (Tron network)',
-      'After sending, click "I\'ve Made the Payment" below',
+      "After sending, click \"I've Made the Payment\" below",
     ],
   },
   solana: {
     name: 'Solana',
     symbol: 'SOL',
-    address: 'DXEn4ymMHC9CFKUPiB7XzHkFu3d6KELFwuQTJ2fvK5wo',
+    settingKey: 'wallet_sol',
     icon: Wallet,
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/20',
+    color: 'text-teal-400',
+    bgColor: 'bg-teal-500/20',
     instructions: [
       'Copy the Solana wallet address below',
       'Open your Solana wallet app',
       'Send the exact amount in SOL equivalent to your USD deposit',
       'Make sure to use the Solana network',
-      'After sending, click "I\'ve Made the Payment" below',
+      "After sending, click \"I've Made the Payment\" below",
     ],
   },
 }
@@ -105,25 +97,47 @@ export default function CryptoWallet() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  const [addressLoading, setAddressLoading] = useState(true)
 
   const amount = location.state?.amount as number | undefined
-  const config = crypto ? cryptoConfigs[crypto.toLowerCase()] : null
+  const meta = crypto ? cryptoMeta[crypto.toLowerCase()] : null
 
   useEffect(() => {
-    if (!amount || !config) {
+    if (!amount || !meta) {
       navigate('/deposit')
+      return
     }
-  }, [amount, config, navigate])
 
-  if (!config || !amount) {
+    const fetchAddress = async () => {
+      setAddressLoading(true)
+      const { data, error: fetchError } = await supabase
+        .from('admin_settings')
+        .select('setting_value')
+        .eq('setting_key', meta.settingKey)
+        .maybeSingle()
+
+      if (fetchError || !data) {
+        setError('Unable to load wallet address. Please try again or contact support.')
+      } else {
+        setWalletAddress(data.setting_value)
+      }
+      setAddressLoading(false)
+    }
+
+    fetchAddress()
+  }, [amount, meta, navigate])
+
+  if (!meta || !amount) {
     return null
   }
 
-  const IconComponent = config.icon
+  const IconComponent = meta.icon
 
   const handleCopyAddress = async () => {
+    if (!walletAddress) return
     try {
-      await navigator.clipboard.writeText(config.address)
+      await navigator.clipboard.writeText(walletAddress)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
@@ -132,7 +146,7 @@ export default function CryptoWallet() {
   }
 
   const handlePaymentConfirmation = async () => {
-    if (!profile) return
+    if (!profile || !walletAddress) return
 
     setLoading(true)
     setError('')
@@ -143,10 +157,10 @@ export default function CryptoWallet() {
         .insert({
           user_id: profile.id,
           amount: amount,
-          payment_method: config.symbol,
+          payment_method: meta.symbol,
           status: 'pending',
           reference_number: '',
-          notes: `Crypto deposit via ${config.name}`,
+          notes: `Crypto deposit via ${meta.name}`,
         })
 
       if (insertError) throw insertError
@@ -208,14 +222,14 @@ export default function CryptoWallet() {
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <div className={`p-4 ${config.bgColor} rounded-2xl`}>
-              <IconComponent className={config.color} size={32} />
+            <div className={`p-4 ${meta.bgColor} rounded-2xl`}>
+              <IconComponent className={meta.color} size={32} />
             </div>
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-white">
-                {config.name} Deposit
+                {meta.name} Deposit
               </h1>
-              <p className="text-slate-400">Send {config.symbol} to complete your deposit</p>
+              <p className="text-slate-400">Send {meta.symbol} to complete your deposit</p>
             </div>
           </div>
         </div>
@@ -236,25 +250,37 @@ export default function CryptoWallet() {
           <Card>
             <CardHeader>
               <h2 className="text-lg font-semibold text-white">Wallet Address</h2>
-              <p className="text-sm text-slate-400">Send {config.symbol} to this address</p>
+              <p className="text-sm text-slate-400">Send {meta.symbol} to this address</p>
             </CardHeader>
             <CardContent>
-              <div className="p-4 bg-slate-800/50 border border-slate-600/50 rounded-xl mb-4">
-                <p className="text-white font-mono text-sm break-all">{config.address}</p>
-              </div>
-              <Button onClick={handleCopyAddress} fullWidth variant={copied ? 'success' : 'primary'}>
-                {copied ? (
-                  <>
-                    <CheckCircle size={20} />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy size={20} />
-                    Copy Wallet Address
-                  </>
-                )}
-              </Button>
+              {addressLoading ? (
+                <div className="p-4 bg-slate-800/50 border border-slate-600/50 rounded-xl mb-4 flex items-center justify-center">
+                  <div className="animate-spin w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full" />
+                </div>
+              ) : walletAddress ? (
+                <>
+                  <div className="p-4 bg-slate-800/50 border border-slate-600/50 rounded-xl mb-4">
+                    <p className="text-white font-mono text-sm break-all">{walletAddress}</p>
+                  </div>
+                  <Button onClick={handleCopyAddress} fullWidth variant={copied ? 'success' : 'primary'}>
+                    {copied ? (
+                      <>
+                        <CheckCircle size={20} />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={20} />
+                        Copy Wallet Address
+                      </>
+                    )}
+                  </Button>
+                </>
+              ) : (
+                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
+                  Wallet address unavailable. Please contact support.
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -264,10 +290,10 @@ export default function CryptoWallet() {
             </CardHeader>
             <CardContent>
               <ol className="space-y-3">
-                {config.instructions.map((instruction, index) => (
+                {meta.instructions.map((instruction, index) => (
                   <li key={index} className="flex gap-3">
                     <span
-                      className={`flex-shrink-0 w-6 h-6 rounded-full ${config.bgColor} ${config.color} flex items-center justify-center text-xs font-bold`}
+                      className={`flex-shrink-0 w-6 h-6 rounded-full ${meta.bgColor} ${meta.color} flex items-center justify-center text-xs font-bold`}
                     >
                       {index + 1}
                     </span>
@@ -301,7 +327,13 @@ export default function CryptoWallet() {
                 </div>
               </div>
 
-              <Button onClick={handlePaymentConfirmation} loading={loading} fullWidth size="lg">
+              <Button
+                onClick={handlePaymentConfirmation}
+                loading={loading}
+                fullWidth
+                size="lg"
+                disabled={!walletAddress || addressLoading}
+              >
                 <CheckCircle size={20} />
                 I've Made the Payment
               </Button>

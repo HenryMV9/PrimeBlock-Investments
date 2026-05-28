@@ -5,21 +5,7 @@ import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
 import Button from '../components/Button'
 import Input from '../components/Input'
-import {
-  Users,
-  Search,
-  DollarSign,
-  TrendingUp,
-  Wallet,
-  X,
-  CheckCircle,
-  AlertTriangle,
-  Percent,
-  Eye,
-  Calendar,
-  Mail,
-  CreditCard,
-} from 'lucide-react'
+import { Users, Search, DollarSign, TrendingUp, Wallet, X, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, Percent, Eye, Calendar, Mail, CreditCard } from 'lucide-react'
 import type { User } from '../types'
 
 function formatCurrency(amount: number): string {
@@ -83,7 +69,22 @@ export default function AdminUsers() {
 
     const numAmount = parseFloat(amount)
     if (isNaN(numAmount)) {
-      setError('Please enter a valid amount')
+      setError('Please enter a valid number')
+      return
+    }
+
+    if (actionType === 'profit' && numAmount < 0) {
+      setError('Profit amount must be positive')
+      return
+    }
+
+    if (actionType === 'roi' && (numAmount < -100 || numAmount > 100000)) {
+      setError('ROI must be between -100% and 100,000%')
+      return
+    }
+
+    if (actionType === 'balance' && selectedUser.balance + numAmount < 0) {
+      setError(`Adjustment would result in a negative balance (${formatCurrency(selectedUser.balance + numAmount)})`)
       return
     }
 

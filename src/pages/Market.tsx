@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import Layout from '../components/Layout'
 import Card, { CardHeader, CardContent } from '../components/Card'
-import { AlertTriangle, TrendingUp, BarChart3, Globe } from 'lucide-react'
+import { TrendingUp, ChartBar as BarChart3, Globe } from 'lucide-react'
 
 function TradingViewWidget({ symbol, containerId }: { symbol: string; containerId: string }) {
   const containerRef = useRef<HTMLDivElement>(null)

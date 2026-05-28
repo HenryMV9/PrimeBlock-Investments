@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/Button'
 import Input from '../components/Input'
-import { AlertCircle, TrendingUp, CheckCircle, Shield, Zap, Crown } from 'lucide-react'
+import { CircleAlert as AlertCircle, TrendingUp, CircleCheck as CheckCircle, Shield, Zap, Crown } from 'lucide-react'
 
 const planDetails: Record<string, { name: string; range: string; icon: typeof Shield }> = {
   starter: { name: 'Starter Growth Plan', range: '$100 – $1,000', icon: Shield },
@@ -141,7 +141,7 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a password"
-              helpText="Must be at least 6 characters"
+              helpText="Min 8 chars with uppercase, lowercase, number & special character"
               required
             />
 
@@ -162,13 +162,13 @@ export default function Register() {
               />
               <span className="text-sm text-slate-400">
                 I agree to the{' '}
-                <a href="#" className="text-primary-400 hover:text-primary-300">
+                <Link to="/terms-conditions" className="text-primary-400 hover:text-primary-300">
                   Terms of Service
-                </a>{' '}
+                </Link>{' '}
                 and{' '}
-                <a href="#" className="text-primary-400 hover:text-primary-300">
+                <Link to="/privacy-policy" className="text-primary-400 hover:text-primary-300">
                   Privacy Policy
-                </a>
+                </Link>
               </span>
             </div>
 
